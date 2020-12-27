@@ -1,0 +1,20 @@
+[cd]
+  args = ["--login"]
+
+{{  $shell_list := promptString "bash" -}}
+{{- $main_editor := promptString "vi" -}}
+{{- $use_vim := promptString "true" -}}
+[data]
+  shell_list = "{{ $shell_list }}"
+  main_editor = "{{ $main_editor }}"
+  use_vim = "{{ $use_vim }}"
+
+{{  $git_email := promptString "xxx@example.com" -}}
+{{- $git_name := promptString "alker0" -}}
+{{- $git_difftool := promptString "vi -d $LOCAL $REMOTE" -}}
+[data.git]
+  editor = "{{ $main_editor }}"
+  email = "{{ $git_email }}"
+  name = "{{ $git_name }}"
+  default_difftool = "{{ $git_difftool }}"
+
