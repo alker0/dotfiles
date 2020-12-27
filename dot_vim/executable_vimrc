@@ -1,0 +1,108 @@
+" ---- disable plugins ----
+let loaded_netrwPlugin=1
+
+" ---- file type ----
+filetype plugin on
+
+syntax on
+
+" ---- encoding ----
+set encoding=utf-8
+
+set fileencodings=iso-2022-jp,euc-jp,sjis,utf-8
+
+" ---- search ----
+
+set ignorecase
+
+set smartcase
+
+" ---- editor ----
+
+set tabstop=2
+
+set shiftwidth=2
+
+set expandtab
+
+set autoindent
+
+set smartindent
+
+" Deletable things by <BS>
+" Start => Start position of insert
+set backspace=indent,eol,start
+
+" Loop on search after bottom
+set wrapscan
+
+set showmatch
+
+set wildmenu
+
+" Disable auto comment out
+"set formatoptions-=ro
+autocmd FileType * set formatoptions-=ro
+
+" Include multi byte caractors to format target
+set formatoptions+=mM
+
+" Wrap cursor on Left/Right side
+set whichwrap+=<,>,h,l,[,]
+
+set virtualedit+=block
+
+"set nrformats=alpha
+set nrformats=
+
+" ---- visual ----
+
+" Line number
+set number
+
+" Cursor info
+set ruler
+
+" Show invisible charactor
+set list
+
+" Trail => Space on line end
+" Extends => Show when there are on over right side caractors
+set listchars=tab:>-,extends:<,trail:-,eol:<
+
+set wrap
+
+set laststatus=2
+
+set statusline=%y
+
+set cmdheight=2
+
+" Show normal mode command typing
+set showcmd
+
+set title
+
+set nocursorline
+
+set nocursorcolumn
+
+colorscheme desert
+
+" set term=xterm-256color
+
+" ---- file ----
+
+set nobackup
+
+" default -> ' < s h
+" other -> ! % / : @ c f n r
+"set viminfo=
+
+" ---- terminal ----
+if &shell =~ '\v.*/(|[bd]a|[ackz]|tc|fi)sh'
+  let &shell.=' --login'
+endif
+
+inoremap jj <C-[>
+

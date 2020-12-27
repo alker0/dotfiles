@@ -1,0 +1,5 @@
+{{ if (ne "ubuntu" .chezmoi.osRelease.id) }}
+.hushlogin
+.bash_*
+{{ end }}
+
