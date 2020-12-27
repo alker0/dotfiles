@@ -1,0 +1,36 @@
+[core]
+  editor = {{ .git.editor }}
+[user]
+  email = {{ .git.email }}
+  name = {{ .git.name }}
+[credential]
+  helper = manager
+[pull]
+  ff = only
+[alias]
+  ftpr = fetch --prune
+  mgsq = merge --squash
+  mgbfp = !sh -c 'git fetch --prune origin && git merge --ff-only --rebase origin ${1:-master}' _
+  mgafp = !sh -c 'git fetch --prune origin && git merge --ff-only origin ${1:-master}' _
+  sw = switch
+  br = branch
+  cm = commit
+  cmm = commit -m
+  cmam = commit --amend
+  su = status
+  sh = stash
+  rs = restore
+  rss = restore -S
+  rsw = restore -W
+  uisw = update-index --skip-worktree
+  uinsw = update-index --no-skip-worktree
+  shbr = show-branch
+  brls = !git branch | grep -v '[~]'
+  stls = !git stash list | grep -v '[~]'
+  uils = !git ls-files -v | grep ^S
+
+[diff]
+  tool = default-difftool
+[difftool "default-difftool"]
+  cmd = {{ .git.default_difftool }}
+
