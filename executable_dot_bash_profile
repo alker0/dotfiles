@@ -9,17 +9,51 @@ export TZ=JST-9
 export PAGER=less
 export LESS='-I -R -M -W -x2'
 
-linuxbrew_path=/home/linuxbrew/.linuxbrew/bin/brew
-[ -r "$linuxbrew_path" ] && eval $($linuxbrew_path shellenv)
-unset linuxbrew_path
+set_standard_aliases () {
+  [ -x /usr/bin/dircolors ] && {
+    [ -r ~/.dircolors ] && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
 
-home_bin_path="$HOME/bin"
-[ -d "$home_bin_path" ] && export PATH="${home_bin_path}:$PATH"
-unset home_bin_path
+    eval "$(
+      for cmd_name in ls grep fgrep egrep
+      do
+        echo "alias $cmd_name='$cmd_name --color=auto'"
+      done
+      #dir vdir
+    )"
+  }
+
+  alias la='ls -A'
+  alias ll='ls -Alh'
+}
+
+load_with_filecheck () {
+  [ -f "$1" ] && . $1
+}
+
+eval "$(
+  linuxbrew_path=/home/linuxbrew/.linuxbrew/bin/brew
+  if [ -r "$linuxbrew_path" ] ; then
+    echo $($linuxbrew_path shellenv)
+  else
+    echo ':'
+  fi
+)"
+
+export PATH="$(
+  home_bin_path="$HOME/bin"
+  if [ -d "$home_bin_path" ] ; then
+    echo "${home_bin_path}:$PATH"
+  else
+    echo $PATH
+  fi
+)"
 
 case $- in
   *i*) ;;
-  *) return ;;
+  *)
+    set_standard_aliases
+    load_with_filecheck ~/.bash_aliases
+    return ;;
 esac
 
 
@@ -37,55 +71,42 @@ shopt -s nocaseglob
 shopt -s checkwinsize
 
 
-# Terminal Title => \e]0;\h_\u@\w\a
-ps1_title='\e]0;\h_\u@\w\a'
+create_prompt_string () {
+  (
+    # Terminal Title => \e]0;\h_\u@\w\a
+    ps1_title='\e]0;\h_\u@\w\a'
 
-# Current Root => ${debian_chroot:+($debian_chroot)}
-ps1_root='${debian_chroot:+($debian_chroot)}'
+    # Current Root => ${debian_chroot:+($debian_chroot)}
+    ps1_root='${debian_chroot:+($debian_chroot)}'
 
-# User Part => [ \u ]
-# User Part (Colored)
-# => [ \[\e[1;32m\]\u\[\e[0m\] ]
-ps1_user='\[\e[1;32m\]\u\[\e[0m\]'
+    # User Part => [ \u ]
+    # User Part (Colored)
+    # => [ \[\e[1;32m\]\u\[\e[0m\] ]
+    ps1_user='\[\e[1;32m\]\u\[\e[0m\]'
 
-# Location Part => \w
-# Location Part (Colored)
-# => \[\e[33m\]\w\[\e[0m\]
-ps1_location='\[\e[1;35m\]\w\[\e[0m\]'
+    # Location Part => \w
+    # Location Part (Colored)
+    # => \[\e[33m\]\w\[\e[0m\]
+    ps1_location='\[\e[1;35m\]\w\[\e[0m\]'
 
-# Last Status Part => $?
-# Last Status Part (Colored)
-# => $(lst_st=$? && [ "$lst_st" == 0 ] && echo "\[\e[92m\]" || echo "\[\e[31m\]"; exit $lst_st)$?\[\e[0m\]
-ps1_status='$(lst_st=$? && [ "$lst_st" == 0 ] && echo "\[\e[92m\]" || echo "\[\e[31m\]"; exit $lst_st)$?\[\e[0m\]'
+    # Last Status Part => $?
+    # Last Status Part (Colored)
+    # => $(lst_st=$? && [ "$lst_st" == 0 ] && echo "\[\e[92m\]" || echo "\[\e[31m\]"; exit $lst_st)$?\[\e[0m\]
+    ps1_status='$(lst_st=$? && [ "$lst_st" == 0 ] && echo "\[\e[92m\]" || echo "\[\e[31m\]"; exit $lst_st)$?\[\e[0m\]'
 
-# Dollar Part => \$
-# Dollar Part (Colored)
-# => \[\e[1;95m\]\$\[\e[0m\]
-ps1_dollar='\[\e[93m\]\$\[\e[0m\]'
+    # Dollar Part => \$
+    # Dollar Part (Colored)
+    # => \[\e[1;95m\]\$\[\e[0m\]
+    ps1_dollar='\[\e[93m\]\$\[\e[0m\]'
 
-export PS1="${ps1_title}${ps1_root}[ ${ps1_user} ] ${ps1_location}\n${ps1_status} ${ps1_dollar} "
-
-unset ps1_title ps1_root ps1_user ps1_location ps1_status ps1_dollar
+    echo "${ps1_title}${ps1_root}[ ${ps1_user} ] ${ps1_location}\n${ps1_status} ${ps1_dollar} "
+  )
+}
+export PS1="$(create_prompt_string)"
 
 
 stty stop undef
 
+set_standard_aliases
+load_with_filecheck ~/.bash_aliases
 
-[ -x /usr/bin/dircolors ] && {
-  [ -r ~/.dircolors ] && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
-
-  for cmd_name in ls grep fgrep egrep
-  do
-    alias $cmd_name="$cmd_name --color=auto"
-  done
-  #dir vdir
-  unset -v cmd_name
-}
-
-
-alias la='ls -A'
-alias ll='ls -Alh'
-
-aliases_path=~/.bash_aliases
-[ -f "$aliases_path" ] && . $aliases_path
-unset aliases_path
