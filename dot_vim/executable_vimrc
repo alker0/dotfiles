@@ -1,10 +1,24 @@
+" ---- manage plugins
+function! PackInit() abort
+  if &compatible
+    set nocompatable
+  endif
+  
+  packadd minpac
+  
+  call minpac#init()
+  
+  call minpac#add('k-takata/minpac', #{type: 'opt'})
+  
+  call minpac#add('fatih/vim-go', #{do: {->system("sed -i -E '" . 's%(match +go[tT]plIdentifier .+[^\])(\+\\)%\1\\\2%' . "' syntax/gotexttmpl.vim")}})
+endfunction
+
+command! PackUpdate call PackInit() | call minpac#update()
+command! PackClean call PackInit() | call minpac#clean()
+command! PackStatus packadd minpac | call minpac#status()
+
 " ---- disable plugins ----
 let loaded_netrwPlugin=1
-
-" ---- file type ----
-filetype plugin on
-
-syntax on
 
 " ---- encoding ----
 set encoding=utf-8
@@ -12,13 +26,11 @@ set encoding=utf-8
 set fileencodings=iso-2022-jp,euc-jp,sjis,utf-8
 
 " ---- search ----
-
 set ignorecase
 
 set smartcase
 
 " ---- editor ----
-
 set tabstop=2
 
 set shiftwidth=2
@@ -56,7 +68,6 @@ set virtualedit+=block
 set nrformats=
 
 " ---- visual ----
-
 " Line number
 set number
 
@@ -91,8 +102,7 @@ colorscheme desert
 
 " set term=xterm-256color
 
-" ---- file ----
-
+" ---- side effect files ----
 set nobackup
 
 " default -> ' < s h
@@ -103,6 +113,8 @@ set nobackup
 if &shell =~ '\v.*/(|[bd]a|[ackz]|tc|fi)sh'
   let &shell.=' --login'
 endif
+
+" ---- key mapping ----
 
 inoremap jj <C-[>
 
