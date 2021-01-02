@@ -4,7 +4,17 @@
   email = {{ .git.email }}
   name = {{ .git.name }}
 [credential]
+{{- if contains "microsoft" .chezmoi.kernel.osrelease  }}
+  helper = '/mnt/c/Program Files/Git/mingw64/libexec/git-core/git-credential-manager.exe'
+{{- else if eq .chezmoi.os "windows" }}
   helper = manager
+{{- else }}
+  helper = cache --timeout 300000
+{{- end }}
+[color]
+  status = auto
+  diff = auto
+  branch = auto
 [pull]
   ff = only
 [alias]
@@ -30,7 +40,21 @@
   uils = !git ls-files -v | grep ^S
 
 [diff]
-  tool = default-difftool
-[difftool "default-difftool"]
-  cmd = {{ .git.default_difftool }}
+  tool = {{ .git.default_diff }}
+[difftool]
+  prompt = false
+[difftool "normal-diff"]
+  cmd = 'diff -u $LOCAL $REMOTE'
+[difftool "code-diff"]
+  cmd = 'code --reuse-window --diff $LOCAL $REMOTE'
+[merge]
+  tool = {{ .git.default_merge }}
+[mergetool]
+  prompt = false
+  keepBackup = false
+[mergetool "normal-merge"]
+  cmd = 'vi $MERGED'
+[mergetool "code-merge"]
+  cmd = 'code --reuse-window $MERGED'
+  trustExitCode = false
 
