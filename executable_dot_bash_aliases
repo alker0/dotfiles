@@ -1,71 +1,96 @@
-alias ds='du -sh'
+eval "$( ({
+  echo ds 'du -sh'
 
-[ -n "$(command -v powershell)" ] && {
-  powershell_command='powershell -Command'
-  alias psx=$powershell_command
-  alias poff="$powershell_command Stop-Computer"
-  alias rbt="$powershell_command Restart-Computer"
-  unset powershell_command
-}
+  if [ -n "$(command -v powershell)" ] ; then
+    echo pwsh 'powershell'
 
-[ -n "$(command -v docker)" ] && {
-  alias dkr='docker'
-  alias dkli='docker image ls'
-  alias dklc='docker container ls'
-  alias dki='docker image'
-  alias dkc='docker container'
-}
+    powershell_command='powershell -Command'
+    echo pwshx "$powershell_command"
+    echo poff "$powershell_command Stop-Computer"
+    echo rbt "$powershell_command Restart-Computer"
 
-fenv_excludes_path=~/.config/fenv/fenv-excludes
+  else
+    shutdown_path='/mnt/c/Windows/System32/shutdown.exe'
+    [ -x $shutdown_path ] && {
+      echo poff "$shutdown_path -s -t 0"
+      echo rbt "$shutdown_path -r -t 0"
+    }
+  fi
 
-[ -r "$fenv_excludes_path" ] && {
-  fenv_excludes=$(cat < $fenv_excludes_path | tr -s '\n' | tr '\n' '|')
+  [ -n "$(command -v docker)" ] && {
+    echo dkr 'docker'
+    echo dkli 'docker image ls'
+    echo dklc 'docker container ls'
+    echo dki 'docker image'
+    echo dkc 'docker container'
+  }
 
-  fenv_sed_pattern=$(cat <<EOP | tr -d '\n'
-  /[:]{2}|[CD]:[\\]|[CD]:$/b;
-  s/=([^:]+):/=*\n--------\1\n--------/;
-  s/:/\n--------/g
+  [ -n "$(command -v chezmoi)" ] && {
+    echo cz 'chezmoi'
+    echo czad 'chezmoi add'
+    echo czadt 'chezmoi add --template'
+    echo czadat 'chezmoi add --autotemplate'
+    echo czap 'chezmoi apply'
+    echo czdf 'chezmoi diff'
+    echo czdt 'chezmoi data'
+    echo cze 'chezmoi edit'
+    echo czec 'chezmoi edit-config'
+    echo czfg 'chezmoi forget'
+    echo czm 'chezmoi managed'
+    echo czunm 'chezmoi unmanaged'
+    echo czsp 'chezmoi source-path'
+    echo czupd 'chezmoi update'
+    echo czupg 'chezmoi upgrade'
+    echo czcd 'cd `chezmoi source-path`'
+    echo czxt 'chezmoi execute-template'
+  }
+
+}) | sed -E "s/^([_[:alnum:]]+) /alias \1='/;s/$/'/"
+)"
+
+
+fenv () {
+  (
+    if [ -f "${FENV_EXCLUDES_PATH:=${HOME}/.config/fenv/fenv-excludes}" ] ; then
+      fenv_excludes=$(cat < ${FENV_EXCLUDES_PATH} | tr -s '\n' | tr '\n' '|')
+
+      fenv_sed_pattern=$(cat <<EOP | tr -d '\n'
+      /[:]{2}|[CD]:[\\]|[CD]:$/b;
+      s/=([^:]+):/=*\n--------\1\n--------/;
+      s/:/\n--------/g
 EOP
-  )
+      )
 
-  alias fenv="env | grep -E -v '^(${fenv_excludes})=' | sort | sed -r '${fenv_sed_pattern}'"
+      env | grep -E -v "^(${fenv_excludes})=" | sort | sed -r "${fenv_sed_pattern}"
+    else
+      echo "${FENV_EXCLUDES_PATH} is missing or invalid"
+      return 1
+    fi
+  )
 }
-unset fenv_excludes_path fenv_excludes fenv_sed_pattern
 
 unqh () {
   # inspect -> type unqh
   # delete -> unset -f unqh
   # list -> set | less
-  reverse_command () {
-    nl -n rz | sort -nr | cut -f 2-
-  } &&
   history -a &&
-  cat $HISTFILE |
-  reverse_command |
-  awk '!x[$0]++' |
-  reverse_command > /tmp/history &&
-  cat /tmp/history > $HISTFILE &&
+  (
+    reverse_command () {
+      nl -n rz | sort -nr | cut -f 2-
+    } &&
+    cat ${HISTFILE:=${HOME}/.bash_history} |
+    reverse_command |
+    awk '!x[$0]++' |
+    reverse_command > /tmp/history &&
+    cat /tmp/history > $HISTFILE
+  ) &&
   history -c &&
   history -r
 }
 
 [ -n "$(command -v chezmoi)" ] && {
-  alias cz='chezmoi'
-  alias czad='chezmoi add'
-  alias czadt='chezmoi add --template'
-  alias czadat='chezmoi add --autotemplate'
-  alias czap='chezmoi apply'
-  alias czdf='chezmoi diff'
-  alias czdt='chezmoi data'
-  alias cze='chezmoi edit'
-  alias czec='chezmoi edit-config'
-  alias czext='chezmoi execute-template'
-  alias czfg='chezmoi forget'
-  alias czm='chezmoi managed'
-  alias czunm='chezmoi unmanaged'
-  alias czsp='chezmoi source-path'
-  alias czupd='chezmoi update'
-  alias czupg='chezmoi upgrade'
-  alias czcd='cd `chezmoi source-path`'
+  czxps () {
+    chezmoi execute-template --init --promptString=$@
+  }
 }
 
