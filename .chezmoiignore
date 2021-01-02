@@ -1,5 +1,16 @@
-{{ if (ne "ubuntu" .chezmoi.osRelease.id) }}
-.hushlogin
+{{ if not (.shell_list | has "bash") }}
 .bash_*
+{{ end }}
+
+{{ if not (.shell_list | has "ash") }}
+.profile
+{{ end }}
+
+{{ if not ((.chezmoi.os | eq "windows") | or (.chezmoi.kernel.osrelease | contains "microsoft")) }}
+fenv-excludes
+{{ end }}
+
+{{ if not .use_vim }}
+.vim/
 {{ end }}
 
