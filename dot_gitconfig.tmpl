@@ -5,7 +5,7 @@
   name = {{ .git.name }}
 [credential]
 {{- if contains "microsoft" .chezmoi.kernel.osrelease  }}
-  helper = '/mnt/c/Program Files/Git/mingw64/libexec/git-core/git-credential-manager.exe'
+  helper = "/mnt/c/Program\\ Files/Git/mingw64/libexec/git-core/git-credential-manager.exe"
 {{- else if eq .chezmoi.os "windows" }}
   helper = manager
 {{- else }}
