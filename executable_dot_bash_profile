@@ -32,7 +32,7 @@ load_with_filecheck () {
 
 eval "$(
   linuxbrew_path=/home/linuxbrew/.linuxbrew/bin/brew
-  if [ -r "$linuxbrew_path" ] ; then
+  if [ -f "$linuxbrew_path" ] && [ -x "$linuxbrew_path" ] ; then
     echo $($linuxbrew_path shellenv)
   else
     echo ':'
