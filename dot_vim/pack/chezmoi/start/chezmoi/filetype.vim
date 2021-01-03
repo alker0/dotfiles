@@ -6,7 +6,7 @@ let g:chezmoi_loaded = 1
 let s:cpoptions_save = &cpoptions
 set cpoptions&vim
 
-augroup vim-chezmoi
+augroup vim_chezmoi
   autocmd!
 
   autocmd BufNewFile,BufRead */chezmoi/* call s:HandleChezmoiFileType()
