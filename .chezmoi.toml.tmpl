@@ -3,69 +3,37 @@
 
 {{- $is_alpine := (.chezmoi.osRelease.id | eq "alpine") }}
 
-{{-
-  $valid_shell_list := list "bash" "zsh" "dash" "ash" "ksh" "csh" "tcsh" "fish" |
-  $shell_list := []
-}}
-{{- range $shell_list_elm := (
-    regexFindAll "\\s*:\\s*" (
-      $shell_list_prompt := "A list of all shell you will use (e.g. 'bash:zsh'): " |
-      promptString $shell_list_prompt |
-      replace $shell_list_prompt ($is_alpine | ternary "ash" "bash")
-    ) -1
-  )
-}}
-{{- $shell_list = (
-  $valid_shell_list | has $shell_list_elm |
-  ternary (append $shell_list $shell_list_elm) $shell_list
-  )
-}}
+{{- $shell_list := list }}
+{{- $valid_shell_list := list "bash" "zsh" "dash" "ash" "ksh" "csh" "tcsh" "fish" }}
+{{- $shell_list_prompt := "A list of all shell you will use (e.g. 'bash:zsh'): " }}
+{{- range $shell_list_elm := ( regexSplit "\\s*:\\s*" (promptString $shell_list_prompt | default ($is_alpine | ternary "ash" "bash") ) -1) }}
+{{- $shell_list = ( $valid_shell_list | has $shell_list_elm | ternary (append $shell_list (quote $shell_list_elm)) $shell_list) }}
 {{- end }}
 
-{{-
-  $main_editor_prompt := "What is your main editor? (default is vi): " |
-  $main_editor := (promptString $main_editor_prompt |
-  replace $main_editor_prompt "vi" |
-  replace "vscode" "code"
-  )
-}}
+{{- $main_editor_prompt := "What is your main editor? (default is vi): " }}
+{{- $main_editor := (promptString $main_editor_prompt | default "vi" | replace "vscode" "code") }}
 
-{{-
-  $use_vim_default := not (empty (lookpath "vim")) |
-  $use_vim_prompt := printf "Will you use vim? (default value is %v)\n[(y)es/(n)o]: " $use_vim_default |
-  $use_vim_input := promptString $use_vim_prompt |
-  $use_vim := (
-  ($use_vim_input | regexMatch "^(?:y|yes)$") | or
-  ($use_vim_default | and (not ($use_vim_input | regexMatch "^(?:n|no)$")))
-  )
-}}
+{{- $use_vim_default := not (empty (lookPath "vim") ) }}
+{{- $use_vim_prompt := printf "Will you use vim? (default value is %v)\n[(y)es/(n)o]: " $use_vim_default }}
+{{- $use_vim_input := promptString $use_vim_prompt }}
+{{- $use_vim := ( ($use_vim_input | regexMatch "^(?:y|yes)$") | or ($use_vim_default | and (not ($use_vim_input | regexMatch "^(?:n|no)$")))) }}
 
 
-{{- $default_diff := (
-  $use_vim | ternary "vimdiff"
-  ($main_editor | eq "code" | ternary "code-diff"
-  "normal-diff")
-  )
-}}
+{{- $default_diff := ( $use_vim | ternary "vimdiff" ($main_editor | eq "code" | ternary "code-diff" "normal-diff") ) }}
 
-{{- $default_merge := (
-  $use_vim | ternary "vimdiff"
-  ($main_editor | eq "code" | ternary "code-merge"
-  "normal-merge")
-  )
-}}
+{{- $default_merge := ( $use_vim | ternary "vimdiff" ($main_editor | eq "code" | ternary "code-merge" "normal-merge") ) }}
 
 [data]
-  shell_list = {{ $shell_list }}
-  main_editor = {{ $main_editor }}
+  shell_list = {{ $shell_list | join ", " | printf "[%s]" }}
+  main_editor = "{{ $main_editor }}"
   use_vim = {{ $use_vim }}
 
 {{- $git_email_default := "xxx@example.com" }}
 {{- $git_email_prompt := printf "Your email for git? (default is %s): " $git_email_default }}
-{{- $git_email := (promptString $git_email_prompt | replace $git_email_prompt $git_email_default) }}
+{{- $git_email := (promptString $git_email_prompt | default $git_email_default) }}
 {{- $git_name_default := "alker0" }}
 {{- $git_name_prompt := printf "Your name for git? (default is %s): " $git_name_default }}
-{{- $git_name := (promptString $git_name_prompt | replace $git_name_prompt $git_name_default) }}
+{{- $git_name := (promptString $git_name_prompt | default $git_name_default) }}
 
 [data.git]
   editor = "{{ $main_editor }}"
