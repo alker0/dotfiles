@@ -17,8 +17,14 @@ command! PackUpdate call PackInit() | call minpac#update()
 command! PackClean call PackInit() | call minpac#clean()
 command! PackStatus packadd minpac | call minpac#status()
 
-" ---- disable plugins ----
+augroup vimrc_autocmd
+  autocmd!
+augroup END
+
+" ---- disable settings ----
 let loaded_netrwPlugin=1
+
+filetype indent off
 
 " ---- encoding ----
 set encoding=utf-8
@@ -52,9 +58,11 @@ set showmatch
 
 set wildmenu
 
-" Disable auto comment out
-"set formatoptions-=ro
-autocmd FileType * set formatoptions-=ro
+augroup vimrc_autocmd
+  " Disable auto comment out
+  "set formatoptions-=ro
+  autocmd FileType * set formatoptions-=ro
+augroup END
 
 " Include multi byte caractors to format target
 set formatoptions+=mM
