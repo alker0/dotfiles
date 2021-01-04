@@ -3,13 +3,13 @@ function! PackInit() abort
   if &compatible
     set nocompatable
   endif
-  
+
   packadd minpac
-  
+
   call minpac#init()
-  
+
   call minpac#add('k-takata/minpac', #{type: 'opt'})
-  
+
   const sed_text =<< trim EOT
     s%(match +goTplIdentifier [^/]*/[^/]*)\\s([^/]*/)%\1[:blank:]\2%i
     s%(match +goTplIdentifier .+[^\])(\+\\)%\1\\\2%i
