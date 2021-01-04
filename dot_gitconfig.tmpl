@@ -11,12 +11,33 @@
 {{- else }}
   helper = cache --timeout 300000
 {{- end }}
+[pull]
+  ff = only
 [color]
   status = auto
   diff = auto
   branch = auto
-[pull]
-  ff = only
+[status]
+  submoduleSummary = 1
+[diff]
+  tool = {{ .git.default_diff }}
+[difftool]
+  prompt = false
+[difftool "normal-diff"]
+  cmd = 'diff -u $LOCAL $REMOTE'
+[difftool "code-diff"]
+  cmd = 'code --reuse-window --diff $LOCAL $REMOTE'
+[merge]
+  tool = {{ .git.default_merge }}
+[mergetool]
+  prompt = false
+  keepBackup = false
+[mergetool "normal-merge"]
+  cmd = 'vi $MERGED'
+[mergetool "code-merge"]
+  cmd = 'code --reuse-window $MERGED'
+  trustExitCode = false
+
 [alias]
   ftpr = fetch --prune
   mgsq = merge --squash
@@ -38,23 +59,4 @@
   brls = !git branch | grep -v '[~]'
   stls = !git stash list | grep -v '[~]'
   uils = !git ls-files -v | grep ^S
-
-[diff]
-  tool = {{ .git.default_diff }}
-[difftool]
-  prompt = false
-[difftool "normal-diff"]
-  cmd = 'diff -u $LOCAL $REMOTE'
-[difftool "code-diff"]
-  cmd = 'code --reuse-window --diff $LOCAL $REMOTE'
-[merge]
-  tool = {{ .git.default_merge }}
-[mergetool]
-  prompt = false
-  keepBackup = false
-[mergetool "normal-merge"]
-  cmd = 'vi $MERGED'
-[mergetool "code-merge"]
-  cmd = 'code --reuse-window $MERGED'
-  trustExitCode = false
 
