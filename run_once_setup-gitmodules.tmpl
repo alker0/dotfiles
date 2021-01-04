@@ -1,0 +1,48 @@
+#!/bin/sh
+
+set -eu
+
+cd {{ .chezmoi.sourceDir }}
+
+[ "$(git config --get chezmoi.initializedModules)" = "true" ] && {
+  echo 'Submodules have been initialized'
+  return
+}
+
+git config --file .git/modules/minpac/config core.repositoryformatversion 1
+git config --file .git/modules/minpac/config extensions.worktreeConfig true
+git config --file .git/modules/minpac/config remote.origin.promisor true
+git config --file .git/modules/minpac/config remote.origin.partialclonefilter blob:none
+git config --file .git/modules/minpac/config.worktree core.sparseCheckout true
+git config --file .git/modules/minpac/config.worktree core.sparseCheckoutCone true
+cat <<EOF |
+/autoload/
+/doc/
+/plugin/
+EOF
+git --git-dir=.git/modules/minpac sparse-checkout set --stdin
+
+git config --file .git/modules/vim-go/config core.repositoryformatversion 1
+git config --file .git/modules/vim-go/config extensions.worktreeConfig true
+git config --file .git/modules/vim-go/config remote.origin.promisor true
+git config --file .git/modules/vim-go/config remote.origin.partialclonefilter blob:none
+git config --file .git/modules/vim-go/config.worktree core.sparseCheckout true
+cat <<EOF |
+/LICENSE
+/syntax/gotexttmpl.vim
+EOF
+git --git-dir=.git/modules/vim-go sparse-checkout set --stdin
+git --git-dir=.git/modules/vim-go update-index --assume-unchanged syntax/gotexttmpl.vim
+
+{(
+  vim_go_path="$(git --git-dir=.git/modules/vim-go config core.worktree | sed -E 's%^(\.\./)+%%')"
+  sed -i -E '
+  s%(match +goTplIdentifier [^/]*/[^/]*)\\s%\1[:blank:]%i
+  s%(match +goTplIndentifier .+[^\])(\+\\)%\1\\\2%i
+  ' ${vim_go_path:?}/syntax/gotexttmpl.vim
+)}
+
+git submodule foreach 'git sparse-checkout reapply && git pull --ff-only --depth 1 --update-shallow'
+
+git config chezmoi.initializedModules true
+
