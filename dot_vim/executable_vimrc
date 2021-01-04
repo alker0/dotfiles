@@ -11,7 +11,7 @@ function! PackInit() abort
   call minpac#add('k-takata/minpac', #{type: 'opt'})
   
   const sed_text =<< trim EOT
-    s%(match +goTplIdentifier [^/]*/[^/]*)\\s%\1[:blank:]%i
+    s%(match +goTplIdentifier [^/]*/[^/]*)\\s([^/]*/)%\1[:blank:]\2%i
     s%(match +goTplIdentifier .+[^\])(\+\\)%\1\\\2%i
   EOT
 
