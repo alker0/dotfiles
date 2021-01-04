@@ -5,15 +5,16 @@ eval "$( ({
     echo pwsh 'powershell'
 
     powershell_command='powershell -Command'
+    history_append='history -a'
     echo pwshx "$powershell_command"
-    echo poff "$powershell_command Stop-Computer"
-    echo rbt "$powershell_command Restart-Computer"
+    echo poff "$history_append && $powershell_command Stop-Computer"
+    echo rbt "$history_append && $powershell_command Restart-Computer"
 
   else
     shutdown_path='/mnt/c/Windows/System32/shutdown.exe'
     [ -x $shutdown_path ] && {
-      echo poff "$shutdown_path -s -t 0"
-      echo rbt "$shutdown_path -r -t 0"
+      echo poff "$history_append && $shutdown_path -s -t 0"
+      echo rbt "$history_append && $shutdown_path -r -t 0"
     }
   fi
 
