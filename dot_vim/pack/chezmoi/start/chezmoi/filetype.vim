@@ -21,7 +21,7 @@ function! s:HandleChezmoiFileType() abort
 
   if original_abs_path =~ '\v%(^|/)\.chezmoi%(ignore|remove)$'
     let b:chezmoi_target_path = original_abs_path
-    setl ft=chezmoitmpl
+    setlocal filetype=chezmoitmpl
     return
   endif
 
@@ -50,13 +50,13 @@ function! s:HandleChezmoiFileType() abort
     " \ . 'detected'
 
     if original_abs_path =~ '\.tmpl$'
-      let b:chezmoi_original_filetype = &ft
+      let b:chezmoi_original_filetype = &filetype
 
       if exists('b:current_syntax')
         let b:chezmoi_original_syntax = b:current_syntax
       endif
 
-      setl ft+=.chezmoitmpl
+      setlocal filetype+=.chezmoitmpl
     endif
   endif
 endfunction
