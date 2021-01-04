@@ -1,7 +1,7 @@
 [cd]
   args = ["--login"]
 
-{{- $is_alpine := (.chezmoi.osRelease.id | eq "alpine") }}
+{{- $is_alpine := ((index .chezmoi "osRelease" | default (dict "id" "")).id | eq "alpine") }}
 
 {{- $shell_list := list }}
 {{- $valid_shell_list := list "bash" "zsh" "dash" "ash" "ksh" "csh" "tcsh" "fish" }}

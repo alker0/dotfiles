@@ -1,16 +1,18 @@
-{{ if not (.shell_list | has "bash") }}
+README.md
+
+{{- if not (.shell_list | has "bash") }}
 .bash_*
-{{ end }}
+{{- end }}
 
-{{ if not (.shell_list | has "ash") }}
+{{- if not (.shell_list | has "ash") }}
 .profile
-{{ end }}
+{{- end }}
 
-{{ if not ((.chezmoi.os | eq "windows") | or (.chezmoi.kernel.osrelease | contains "microsoft")) }}
+{{- if not ((.chezmoi.os | eq "windows") | or ((index .chezmoi "kernel" | default (dict "osrelease" "")).osrelease | contains "microsoft")) }}
 fenv-excludes
-{{ end }}
+{{- end }}
 
-{{ if not .use_vim }}
+{{- if not .use_vim }}
 .vim/
-{{ end }}
+{{- end }}
 
