@@ -19,6 +19,13 @@ function! s:HandleChezmoiFileType() abort
 
   let original_abs_path = expand('<amatch>:p')
 
+  if original_abs_path =~ '\v%(^|/)\.chezmoi%(ignore|remove)$'
+    let b:chezmoi_target_path = original_abs_path
+    setl ft=chezmoitmpl
+    return
+  endif
+
+
   let target_name = s:GetTargetName(original_abs_path->fnamemodify(':t'))
   let only_dot_prefix = s:GetTargetDir(original_abs_path) . '/' . target_name
   let b:chezmoi_target_path = only_dot_prefix->substitute('/\zsdot_', '.', 'g')
