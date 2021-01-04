@@ -10,7 +10,12 @@ function! PackInit() abort
   
   call minpac#add('k-takata/minpac', #{type: 'opt'})
   
-  call minpac#add('fatih/vim-go', #{do: {->system("sed -i -E '" . 's%(match +goTplIdentifier .+[^\])(\+\\)%\1\\\2%i' . "' syntax/gotexttmpl.vim")}})
+  const sed_text =<< trim EOT
+    s%(match +goTplIdentifier [^/]*/[^/]*)\\s%\1[:blank:]%i
+    s%(match +goTplIdentifier .+[^\])(\+\\)%\1\\\2%i
+  EOT
+
+  call minpac#add('fatih/vim-go', #{do: {->system("sed -i -E '" . sed_text . "' syntax/gotexttmpl.vim")}})
 endfunction
 
 command! PackUpdate call PackInit() | call minpac#update()
