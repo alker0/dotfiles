@@ -34,15 +34,13 @@ EOF
 git --git-dir=.git/modules/vim-go sparse-checkout set --stdin
 git --git-dir=.git/modules/vim-go update-index --assume-unchanged syntax/gotexttmpl.vim
 
-{(
-  vim_go_path="$(git --git-dir=.git/modules/vim-go config core.worktree | sed -E 's%^(\.\./)+%%')"
-  sed -i -E '
-  s%(match +goTplIdentifier [^/]*/[^/]*)\\s([^/]*/)%\1[:blank:]\2%i
-  s%(match +goTplIndentifier .+[^\])(\+\\)%\1\\\2%i
-  ' ${vim_go_path:?}/syntax/gotexttmpl.vim
-)}
-
 git submodule foreach 'git sparse-checkout reapply && git pull --ff-only --depth 1 --update-shallow'
+
+vim_go_path="$(git --git-dir=.git/modules/vim-go config core.worktree | sed -E 's%^(\.\./)+%%')"
+sed -i -E '
+s%(match +goTplIdentifier [^/]*/[^/]*)\\s([^/]*/)%\1[:blank:]\2%i
+s%(match +goTplIndentifier .+[^\])(\+\\)%\1\\\2%i
+' ${vim_go_path:?}/syntax/gotexttmpl.vim
 
 git config chezmoi.initializedModules true
 
