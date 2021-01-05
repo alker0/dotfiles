@@ -34,7 +34,7 @@ EOF
 git --git-dir=.git/modules/vim-go sparse-checkout set --stdin
 git --git-dir=.git/modules/vim-go update-index --assume-unchanged syntax/gotexttmpl.vim
 
-git submodule foreach 'git sparse-checkout reapply && git pull --ff-only --depth 1 --update-shallow'
+git submodule foreach 'git sparse-checkout reapply'
 
 vim_go_path="$(git --git-dir=.git/modules/vim-go config core.worktree | sed -E 's%^(\.\./)+%%')"
 sed -i -E '
