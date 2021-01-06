@@ -2,19 +2,25 @@
 
 set -eu
 
-cd {{ .chezmoi.sourceDir }}
+chezmoi_source_dir='{{ .chezmoi.sourceDir }}'
+
+echo "Entering to '$chezmoi_source_dir'"
+cd $chezmoi_source_dir
 
 [ "$(git config --get chezmoi.initializedModules)" = "true" ] && {
   echo 'Submodules have been initialized'
   return
 }
 
-git config --file .git/modules/minpac/config core.repositoryformatversion 1
-git config --file .git/modules/minpac/config extensions.worktreeConfig true
-git config --file .git/modules/minpac/config remote.origin.promisor true
-git config --file .git/modules/minpac/config remote.origin.partialclonefilter blob:none
-git config --file .git/modules/minpac/config.worktree core.sparseCheckout true
-git config --file .git/modules/minpac/config.worktree core.sparseCheckoutCone true
+git submodule foreach '
+git config core.repositoryformatversion 1
+git config extensions.worktreeConfig true
+git config remote.origin.promisor true
+git config remote.origin.partialclonefilter blob:none
+git config --worktree core.sparseCheckout true
+'
+
+git --git-dir=.git/modules/minpac config --worktree core.sparseCheckoutCone true
 cat <<EOF |
 /autoload/
 /doc/
@@ -22,11 +28,7 @@ cat <<EOF |
 EOF
 git --git-dir=.git/modules/minpac sparse-checkout set --stdin
 
-git config --file .git/modules/vim-go/config core.repositoryformatversion 1
-git config --file .git/modules/vim-go/config extensions.worktreeConfig true
-git config --file .git/modules/vim-go/config remote.origin.promisor true
-git config --file .git/modules/vim-go/config remote.origin.partialclonefilter blob:none
-git config --file .git/modules/vim-go/config.worktree core.sparseCheckout true
+
 cat <<EOF |
 /LICENSE
 /syntax/gotexttmpl.vim
