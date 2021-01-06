@@ -80,6 +80,10 @@ set virtualedit+=block
 "set nrformats=alpha
 set nrformats=
 
+set ttimeout
+set timeoutlen=500
+set ttimeoutlen=100
+
 " ---- visual ----
 " Line number
 set number
@@ -98,9 +102,9 @@ set wrap
 
 set laststatus=2
 
-set statusline=%y
-
 set cmdheight=2
+
+let &showbreak = '+++ '
 
 " Show normal mode command typing
 set showcmd
@@ -117,6 +121,8 @@ colorscheme desert
 
 " ---- side effect files ----
 set nobackup
+
+set noundofile
 
 " default -> ' < s h
 " other -> ! % / : @ c f n r
