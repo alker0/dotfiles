@@ -20,9 +20,11 @@ syn cluster goTplWithoutIdCluster contains=@goLiteral,goTplControl,goTplFunction
 if exists('b:chezmoi_original_filetype') && !empty(b:chezmoi_original_filetype)
   if b:chezmoi_original_filetype =~ '\v%(^|\.)%(|[bd]?a|[kcz]|tc)sh$'
     call chezmoi#syntax#addIntoCluster('shCommandSubList', 'shTestList', 'shCommentGroup')
+    call chezmoi#syntax#addIntoSyntaxGroup('shSingleQuote', 'shDoubleQuote', 'shExSingleQuote', 'shExDoubleQuote')
   elseif b:chezmoi_original_filetype =~ '\v%(^|\.)vim$'
-    call chezmoi#syntax#addIntoCluster('vimFuncBodyList', 'vimCommentGroup')
-    call chezmoi#syntax#addIntoRegion('vimSetEqual')
+    call chezmoi#syntax#addIntoCluster('vimStringGroup', 'vimFuncBodyList', 'vimCommentGroup')
+    call chezmoi#syntax#addIntoSyntaxGroup('vimEcho', 'vimString', 'vimSetEqual', 'vimExecute')
+    syn match vimNotFunc /\<if\>\|\<el\%[seif]\>\|\<return\>\|\<while\>/ nextgroup=gotplAction,goTplComment
   endif
 endif
 

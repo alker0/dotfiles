@@ -6,7 +6,7 @@ function chezmoi#syntax#addIntoCluster(...) abort
   endfor
 endfunction
 
-function chezmoi#syntax#addIntoRegion(...) abort
+function chezmoi#syntax#addIntoSyntaxGroup(...) abort
   " ==== add into `region group` ====
   " syn region goTplAction start="{{" end="}}" contains=@goTplAllCluster containedin=[HERE]
   " syn region goTplComment start="{{\(- \)\?/\*" end="\*/\( -\)\?}}" contains=@goTplAllCluster containedin=[HERE]
