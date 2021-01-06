@@ -1,11 +1,11 @@
 eval "$( ({
   echo ds 'du -sh'
 
+  history_append='history -a'
   if [ -n "$(command -v powershell)" ] ; then
     echo pwsh 'powershell'
 
     powershell_command='powershell -Command'
-    history_append='history -a'
     echo pwshx "$powershell_command"
     echo poff "$history_append && $powershell_command Stop-Computer"
     echo rbt "$history_append && $powershell_command Restart-Computer"
