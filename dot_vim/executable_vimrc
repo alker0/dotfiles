@@ -12,7 +12,7 @@ function! PackInit() abort
 
   const sed_text =<< trim EOT
     s%(match +goTplIdentifier [^/]*/[^/]*)\\s([^/]*/)%\1[:blank:]\2%i
-    s%(match +goTplIdentifier .+[^\])(\+\\)%\1\\\2%i
+    s%(match +goTplIdentifier .+])(\+\\)%\1\\\2%i
   EOT
 
   call minpac#add('fatih/vim-go', #{do: {->system("sed -i -E '" . sed_text . "' syntax/gotexttmpl.vim")}})
