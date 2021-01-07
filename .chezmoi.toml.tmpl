@@ -27,6 +27,7 @@
   shell_list = {{ $shell_list | join ", " | printf "[%s]" }}
   main_editor = "{{ $main_editor }}"
   use_vim = {{ $use_vim }}
+  is_win_bash = {{ .chezmoi.os | eq "windows" | and ($shell_list | has "bash") }}
 
 {{- $git_email_default := "xxx@example.com" }}
 {{- $git_email_prompt := printf "Your email for git? (default is %s): " $git_email_default }}
