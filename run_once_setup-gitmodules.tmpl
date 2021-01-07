@@ -2,7 +2,11 @@
 
 set -eu
 
+{{ if .is_win_bash }}
+chezmoi_source_dir=$HOME/.local/share/chezmoi
+{{ else }}
 chezmoi_source_dir='{{ .chezmoi.sourceDir }}'
+{{ end }}
 
 echo "Entering to '$chezmoi_source_dir'"
 cd $chezmoi_source_dir
