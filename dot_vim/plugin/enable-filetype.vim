@@ -17,6 +17,7 @@ let &statusline .= '%#StatusLineSeparator# %#StatusLineFileInfo#%{exists("b:stat
 let &statusline .= '%#StatusLineSeparator#%='
 " line,column N%[filetype]
 let &statusline .= '%#StatusLineCursorInfo#%13(%l,%2c (%3p%%)%) %#StatusLineFileType#  %y  '
+let &statusline .= '%#Normal#'
 
 " set highlight for statusline
 if &term =~ '256'
