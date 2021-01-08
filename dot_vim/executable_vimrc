@@ -36,10 +36,19 @@ set encoding=utf-8
 
 set fileencodings=iso-2022-jp,euc-jp,sjis,utf-8
 
+" ---- move ----
+" Wrap cursor on Left/Right side
+set whichwrap+=<,>,h,l,[,]
+
+set virtualedit+=block
+
 " ---- search ----
 set ignorecase
 
 set smartcase
+
+" Loop on search after bottom
+set wrapscan
 
 " ---- editor ----
 set tabstop=2
@@ -56,26 +65,7 @@ set smartindent
 " Start => Start position of insert
 set backspace=indent,eol,start
 
-" Loop on search after bottom
-set wrapscan
-
-set showmatch
-
 set wildmenu
-
-augroup vimrc_autocmd
-  " Disable auto comment out
-  "set formatoptions-=ro
-  autocmd FileType * set formatoptions-=ro
-augroup END
-
-" Include multi byte caractors to format target
-set formatoptions+=mM
-
-" Wrap cursor on Left/Right side
-set whichwrap+=<,>,h,l,[,]
-
-set virtualedit+=block
 
 "set nrformats=alpha
 set nrformats=
@@ -84,12 +74,19 @@ set ttimeout
 set timeoutlen=500
 set ttimeoutlen=100
 
-" ---- visual ----
-" Line number
-set number
+" Include multi byte caractors to format target
+set formatoptions+=mM
 
-" Cursor info
-set ruler
+augroup vimrc_autocmd
+  " Disable auto comment out
+  "set formatoptions-=ro
+  autocmd FileType * set formatoptions-=ro
+augroup END
+
+" ---- visual ----
+set wrap
+
+set showmatch
 
 " Show invisible charactor
 set list
@@ -98,18 +95,10 @@ set list
 " Extends => Show when there are on over right side caractors
 set listchars=tab:>-,extends:<,trail:-,eol:<
 
-set wrap
-
-set laststatus=2
-
-set cmdheight=2
-
 let &showbreak = '+++ '
 
-" Show normal mode command typing
-set showcmd
-
-set title
+" Line number
+set number
 
 set nocursorline
 
@@ -117,7 +106,20 @@ set nocursorcolumn
 
 colorscheme desert
 
+set title
+
 " set term=xterm-256color
+
+" ---- bottom info ----
+" Cursor info
+set ruler
+
+set laststatus=2
+
+set cmdheight=2
+
+" Show normal mode command typing
+set showcmd
 
 " ---- side effect files ----
 set nobackup
