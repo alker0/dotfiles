@@ -44,15 +44,8 @@ set virtualedit+=block
 
 set scrolloff=5
 
-function! s:fixScroll()
-  set scroll=5
-  augroup vimrc_autocmd
-    autocmd VimResized * set scroll=5
-  augroup END
-endfunction
-
 augroup vimrc_autocmd
-  autocmd VimEnter * call s:fixScroll()
+  autocmd VimEnter,VimResized * set scroll=5
 augroup END
 
 " ---- search ----
