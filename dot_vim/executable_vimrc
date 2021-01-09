@@ -94,6 +94,8 @@ set wrap
 
 set showmatch
 
+set hlsearch
+
 " Show invisible charactor
 set list
 
