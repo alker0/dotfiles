@@ -182,9 +182,40 @@ if &shell =~ '\v.*/(|[bd]a|[ackz]|tc|fi)sh'
 endif
 
 " ---- key mapping ----
+let mapleader = "\<Space>"
+
+map <Nul> <C-Space>
+map! <Nul> <C-Space>
+
+" <F13> ... <F19>
+set t_F3=[1;2*P
+set t_F4=[1;2*Q
+set t_F5=[1;2*R
+set t_F6=[1;2*S
+set t_F7=[15;2;*~
+set t_F8=[17;2;*~
+set t_F9=[18;2;*~
+
+nnoremap <Leader>r gT
+nnoremap <Leader>t gt
+
+nnoremap <Leader>n :nohlsearch<CR>
+
+nnoremap <Leader>d "_d
+nnoremap <Leader>p "0p
 
 nnoremap <C-f> <C-f>zz
 nnoremap <C-b> <C-b>zz
 
+nnoremap & :&&<CR>
+xnoremap & :&&<CR>
+
+xnoremap il g_o0
+xnoremap al $o0
+onoremap il :normal vil<CR>
+onoremap al :normal val<CR>
+
 inoremap jj <C-[>
 
+inoremap <C-b> <C-g>U<Left>
+inoremap <C-f> <C-g>U<Right>
