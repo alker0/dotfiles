@@ -13,7 +13,7 @@
 {{- $main_editor_prompt := "What is your main editor? (default is vi): " }}
 {{- $main_editor := (promptString $main_editor_prompt | default "vi" | replace "vscode" "code") }}
 
-{{- $use_vim_default := not (empty (lookPath "vim") ) }}
+{{- $use_vim_default := not (empty (lookPath "vim")) }}
 {{- $use_vim_prompt := printf "Will you use vim? (default value is %v)\n[(y)es/(n)o]: " $use_vim_default }}
 {{- $use_vim_input := promptString $use_vim_prompt }}
 {{- $use_vim := ( ($use_vim_input | regexMatch "^(?:y|yes)$") | or ($use_vim_default | and (not ($use_vim_input | regexMatch "^(?:n|no)$")))) }}
@@ -27,6 +27,7 @@
   shell_list = {{ $shell_list | join ", " | printf "[%s]" }}
   main_editor = "{{ $main_editor }}"
   use_vim = {{ $use_vim }}
+  use_win32yank = {{ not (empty (lookPath "win32yank.exe")) }}
   is_win_bash = {{ .chezmoi.os | eq "windows" | and ($shell_list | has "bash") }}
 
 {{- $git_email_default := "xxx@example.com" }}
