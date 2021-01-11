@@ -199,7 +199,7 @@ set t_F9=[18;2;*~
 nnoremap <Leader>r gT
 nnoremap <Leader>t gt
 
-nnoremap <Leader>n :nohlsearch<CR>
+nnoremap <silent> <Leader>n :nohlsearch<CR>
 
 nnoremap <Leader>d "_d
 nnoremap <Leader>p "0p
@@ -212,8 +212,8 @@ xnoremap & :&&<CR>
 
 xnoremap il g_o0
 xnoremap al $o0
-onoremap il :normal vil<CR>
-onoremap al :normal val<CR>
+onoremap <silent> il :normal vil<CR>
+onoremap <silent> al :normal val<CR>
 
 inoremap jj <C-[>
 
