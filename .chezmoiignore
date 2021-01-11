@@ -16,3 +16,6 @@ fenv-excludes
 .vim/
 {{- end }}
 
+{{- if not .use_win32yank }}
+.vim/plugin/winclip.vim
+{{- end }}
