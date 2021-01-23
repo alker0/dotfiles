@@ -39,10 +39,17 @@
   trustExitCode = false
 
 [alias]
+  cl = clone
+  clsp = clone --sparse --filter=blob:none
+  ftbn = fetch --filter=blob:none
+  ft1 = fetch --depth=1 --update-shallow
+  ftpr = fetch --prune
+  ftpr1 = fetch --prune --depth=1 --update-shallow
+  ftm = fetch --prune --depth=1 --update-shallow --filter=blob:none
   ftpr = fetch --prune
   mgsq = merge --squash
-  mgbfp = !sh -c 'git fetch --prune origin && git merge --ff-only --rebase origin ${1:-master}' _
-  mgafp = !sh -c 'git fetch --prune origin && git merge --ff-only origin ${1:-master}' _
+  mgbfp = !sh -c 'git fetch --prune origin && git merge --ff-only --rebase origin ${1:-main}' _
+  mgafp = !sh -c 'git fetch --prune origin && git merge --ff-only origin ${1:-main}' _
   sw = switch
   br = branch
   cm = commit
@@ -55,6 +62,7 @@
   rs = restore
   rss = restore -S
   rsw = restore -W
+  rbi = rebase -i
   uisw = update-index --skip-worktree
   uinsw = update-index --no-skip-worktree
   shbr = show-branch
