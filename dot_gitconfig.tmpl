@@ -25,18 +25,18 @@
 [difftool]
   prompt = false
 [difftool "normal-diff"]
-  cmd = 'diff -u $LOCAL $REMOTE'
+  cmd = diff -u $LOCAL $REMOTE
 [difftool "code-diff"]
-  cmd = 'code --reuse-window --diff $LOCAL $REMOTE'
+  cmd = code --reuse-window --wait --diff $LOCAL $REMOTE
 [merge]
   tool = {{ .git.default_merge }}
 [mergetool]
   prompt = false
   keepBackup = false
 [mergetool "normal-merge"]
-  cmd = 'vi $MERGED'
+  cmd = vi $MERGED
 [mergetool "code-merge"]
-  cmd = 'code --reuse-window $MERGED'
+  cmd = code --reuse-window $MERGED
   trustExitCode = false
 
 [alias]
