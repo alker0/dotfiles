@@ -49,6 +49,7 @@
   ftm = fetch --prune --depth=1 --update-shallow --filter=blob:none
   ftpr = fetch --prune
   mgsq = merge --squash
+  mgff = merge --ff-only
   mgbfp = !sh -c 'git fetch --prune origin && git merge --ff-only --rebase origin ${1:-main}' _
   mgafp = !sh -c 'git fetch --prune origin && git merge --ff-only origin ${1:-main}' _
   sw = switch
