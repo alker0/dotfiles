@@ -20,10 +20,10 @@ eval "$( ({
 
   [ -n "$(command -v docker)" ] && {
     echo dkr 'docker'
-    echo dkli 'docker image ls'
-    echo dklc 'docker container ls'
     echo dki 'docker image'
     echo dkc 'docker container'
+    echo dkcm 'docker-compose'
+    echo dkbx 'docker buildx'
   }
 
   [ -n "$(command -v chezmoi)" ] && {
@@ -92,6 +92,16 @@ unqh () {
 [ -n "$(command -v chezmoi)" ] && {
   czxps () {
     chezmoi execute-template --init --promptString=$@
+  }
+}
+
+[ -n "$(command -v docker)" ] && {
+  # buildx local cache option
+  dkbxlc () {
+    (
+      cache_dir=${2:-./cache/images/${1?}}
+      echo "--set ${1}.cache-from=type=local,src=${cache_dir} --set ${1}.cache-to=type=local,dest=${cache_dir}"
+    )
   }
 }
 
