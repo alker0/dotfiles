@@ -146,13 +146,13 @@ if exists('+statusline')
     if &term =~ '256'
       hi StatusLineFileName term=bold ctermfg=23 ctermbg=206 gui=bold guifg=DarkMagenta guibg=LightGreen
       hi StatusLineSeparator term=bold ctermfg=NONE ctermbg=Blue gui=bold guifg=NONE guibg=Blue
-      hi StatusLineFileInfo term=bold ctermfg=LightGreen ctermbg=DarkBlue gui=bold guifg=LightGreen guibg=DarkBlue
+      hi StatusLineFileInfo term=bold ctermfg=LightGreen ctermbg=Black gui=bold guifg=LightGreen guibg=Black
       hi StatusLineCursorInfo term=bold ctermfg=DarkBlue ctermbg=DarkYellow gui=bold guifg=DarkBlue guibg=DarkYellow
       hi StatusLineFileType term=bold ctermfg=Yellow ctermbg=DarkMagenta gui=bold guifg=Yellow guibg=DarkMagenta
     else
       hi StatusLineFileName term=bold ctermfg=Black ctermbg=Yellow gui=bold guifg=DarkMagenta guibg=LightGreen
       hi StatusLineSeparator term=bold ctermfg=NONE ctermbg=Blue gui=bold guifg=NONE guibg=Blue
-      hi StatusLineFileInfo term=bold ctermfg=LightGreen ctermbg=DarkBlue gui=bold guifg=LightGreen guibg=DarkBlue
+      hi StatusLineFileInfo term=bold ctermfg=LightGreen ctermbg=Black gui=bold guifg=LightGreen guibg=Black
       hi StatusLineCursorInfo term=bold ctermfg=DarkBlue ctermbg=DarkYellow gui=bold guifg=DarkBlue guibg=DarkYellow
       hi StatusLineFileType term=bold ctermfg=Yellow ctermbg=DarkMagenta gui=bold guifg=Yellow guibg=DarkMagenta
     endif
