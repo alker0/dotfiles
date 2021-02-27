@@ -33,7 +33,18 @@ load_with_filecheck () {
 eval "$(
   linuxbrew_path=/home/linuxbrew/.linuxbrew/bin/brew
   if [ -f "$linuxbrew_path" ] && [ -x "$linuxbrew_path" ] ; then
-    echo $($linuxbrew_path shellenv)
+    $linuxbrew_path shellenv
+  else
+    echo ':'
+  fi
+)"
+
+eval "$(
+  fnm_dir=$HOME/.fnm
+  fnm_path=$fnm_dir/fnm
+  if [ -f "$fnm_path" ] && [ -x "$fnm_path" ] ; then
+    echo "export PATH='${fnm_dir}:$PATH'"
+    $fnm_path env
   else
     echo ':'
   fi
