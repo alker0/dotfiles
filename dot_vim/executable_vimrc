@@ -93,6 +93,8 @@ augroup vimrc
 augroup END
 
 " ---- visual ----
+set belloff=all
+
 set wrap
 
 set showmatch
