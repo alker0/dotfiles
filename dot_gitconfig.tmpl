@@ -58,7 +58,8 @@
   mgafp = !sh -c 'git fetch --prune origin && git merge --ff-only origin ${1:-main}' _
   sw = switch
   br = branch
-  adp = add -p
+  adp = add --patch
+  ada = add --all
   cm = commit
   cmm = commit -m
   cmam = commit --amend
@@ -72,9 +73,10 @@
   su = status
   sh = stash
   rs = restore
-  rss = restore -S
-  rsw = restore -W
-  rbi = rebase -i
+  rss = restore --staged
+  rsw = restore --worktree
+  rbi = rebase --interactive
+  rbir = rebase --interactive --rebase-merges
   uisw = update-index --skip-worktree
   uinsw = update-index --no-skip-worktree
   shbr = show-branch
