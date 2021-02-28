@@ -1,6 +1,10 @@
 eval "$( ({
   echo ds 'du -sh'
 
+  if [ -n "$(command -v git)" ] ; then
+    echo g 'git'
+  fi
+
   history_append='history -a'
   if [ -n "$(command -v powershell)" ] ; then
     echo pwsh 'powershell'
