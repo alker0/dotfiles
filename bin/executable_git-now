@@ -1,0 +1,90 @@
+#!/bin/sh
+
+PREFIX="from now"
+MESSAGE="[${PREFIX}] `date +\"%Y/%m/%d %T\"`"
+
+get_amend() {
+  if [ -z `git log --pretty=oneline -1 | cut -d " " -f 2- | grep "^\[${PREFIX}]"` ]
+  then
+    return 1
+  fi
+
+  local added_files=`git diff --name-only --cached`
+  for f1 in `git diff --name-only HEAD^ HEAD`
+  do
+    for f2 in $added_files
+    do
+      if [ $f1 = $f2 ]
+      then
+        return 1
+      fi
+    done
+  done
+  echo "--amend"
+  return 1
+}
+
+if [ $# -eq 0 ]
+then
+  # git add -u
+  # git commit -m "${MESSAGE}"
+  printf "${MESSAGE}\n\n%s" "`git diff --cached`" | git commit -F -
+else
+  case "$1" in
+    --compact)
+      git add -A
+      AMEND=`get_amend`
+      git commit $AMEND -m "${MESSAGE}"
+      ;;
+    --recent)
+      git add -A
+      if [ -z "`git log --since=1.minute`" ]
+      then
+        git commit -m "${MESSAGE}"
+      else
+        git commit --amend -m "${MESSAGE}"
+      fi
+      ;;
+    --fixup)
+      FIRST_NOW_COMMIT=`git log --pretty=oneline --grep="${PREFIX}" | tail -n 1 | cut -d " " -f 1`
+      if [ -n "${FIRST_NOW_COMMIT}" ]
+      then
+        git reset ${FIRST_NOW_COMMIT}
+        git add -A
+        if [ $# -eq 2 ]
+        then
+          git commit --amend -m "$2"
+        else
+          git commit --amend
+        fi
+      else
+        echo 'No `git-now` commits.'
+      fi
+      ;;
+    --rebase)
+      FIRST_NOW_COMMIT=`git log --pretty=oneline --grep="${PREFIX}" | tail -n 1 | cut -d " " -f 1`
+      INITIAL_COMMIT=`git log --pretty=oneline | tail -n 1 | cut -d " " -f 1`
+
+      if [ "${FIRST_NOW_COMMIT}" != "${INITIAL_COMMIT}" ]
+      then
+        git rebase -i ${FIRST_NOW_COMMIT}^
+      else
+        git rebase -i --root
+      fi
+      ;;
+    *)
+      # if [ _$1 != _--all ]
+      # then
+      #   git add $@
+      # else
+      #   git add -u
+      #   git add .
+      # fi
+      # printf "${MESSAGE}\n\n%s" "`git diff --cached`" | git commit -F -
+      echo "$1 is illegal option." >&2
+      echo "Supproted options:" >&2
+      printf -- '--%s\n' compact recent fixup rebase >&2
+      exit 1
+      ;;
+  esac
+fi
