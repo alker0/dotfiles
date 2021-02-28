@@ -1,12 +1,12 @@
 eval "$( ({
   echo ds 'du -sh'
 
-  if [ -n "$(command -v git)" ] ; then
+  if [ -n "`command -v git`" ] ; then
     echo g 'git'
   fi
 
   history_append='history -a'
-  if [ -n "$(command -v powershell)" ] ; then
+  if [ -n "`command -v powershell`" ] ; then
     echo pwsh 'powershell'
 
     powershell_command='powershell -Command'
@@ -22,7 +22,7 @@ eval "$( ({
     }
   fi
 
-  [ -n "$(command -v docker)" ] && {
+  [ -n "`command -v docker`" ] && {
     echo dkr 'docker'
     echo dki 'docker image'
     echo dkc 'docker container'
@@ -30,7 +30,7 @@ eval "$( ({
     echo dkbx 'docker buildx'
   }
 
-  [ -n "$(command -v chezmoi)" ] && {
+  [ -n "`command -v chezmoi`" ] && {
     echo cz 'chezmoi'
     echo czad 'chezmoi add'
     echo czadt 'chezmoi add --template'
@@ -93,13 +93,13 @@ unqh () {
   history -r
 }
 
-[ -n "$(command -v chezmoi)" ] && {
+[ -n "`command -v chezmoi`" ] && {
   czxps () {
     chezmoi execute-template --init --promptString=$@
   }
 }
 
-[ -n "$(command -v docker)" ] && {
+[ -n "`command -v docker`" ] && {
   # buildx local cache option
   dkbxlc () {
     (

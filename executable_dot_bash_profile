@@ -11,15 +11,15 @@ export LESS='-I -R -M -W -x2'
 
 set_standard_aliases () {
   [ -x /usr/bin/dircolors ] && {
-    [ -r ~/.dircolors ] && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    [ -r ~/.dircolors ] && eval "`dircolors -b ~/.dircolors`" || eval "`dircolors -b`"
 
-    eval "$(
+    eval "`
       for cmd_name in ls grep fgrep egrep
       do
         echo "alias $cmd_name='$cmd_name --color=auto'"
       done
       #dir vdir
-    )"
+    `"
   }
 
   alias la='ls -A'
@@ -30,16 +30,16 @@ load_with_filecheck () {
   [ -f "$1" ] && . $1
 }
 
-eval "$(
+eval "`
   linuxbrew_path=/home/linuxbrew/.linuxbrew/bin/brew
   if [ -f "$linuxbrew_path" ] && [ -x "$linuxbrew_path" ] ; then
     $linuxbrew_path shellenv
   else
     echo ':'
   fi
-)"
+`"
 
-eval "$(
+eval "`
   fnm_dir=$HOME/.fnm
   fnm_path=$fnm_dir/fnm
   if [ -f "$fnm_path" ] && [ -x "$fnm_path" ] ; then
@@ -48,16 +48,16 @@ eval "$(
   else
     echo ':'
   fi
-)"
+`"
 
-export PATH="$(
+export PATH="`
   home_bin_path="$HOME/bin"
   if [ -d "$home_bin_path" ] ; then
     echo "${home_bin_path}:$PATH"
   else
     echo $PATH
   fi
-)"
+`"
 
 case $- in
   *i*) ;;
@@ -113,7 +113,7 @@ create_prompt_string () {
     echo "${ps1_title}${ps1_root}[ ${ps1_user} ] ${ps1_location}\n${ps1_status} ${ps1_dollar} "
   )
 }
-export PS1="$(create_prompt_string)"
+export PS1="`create_prompt_string`"
 
 
 stty stop undef
