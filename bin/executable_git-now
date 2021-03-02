@@ -1,90 +1,213 @@
 #!/bin/sh
 
-PREFIX="from now"
-MESSAGE="[${PREFIX}] `date +\"%Y/%m/%d %T\"`"
+GIT_DIR="`git rev-parse --show-superproject-working-tree --show-toplevel | head -1`/.git"
+HOOKS_DIR="$GIT_DIR/hooks"
+[ -d "$GIT_DIR" ] || {
+  echo '.git/ is missing' >&2
+  exit 1
+}
+PRE_PUSH_PATH="$HOOKS_DIR/pre-push"
+PRE_PUSH_ORG_PATH="${PRE_PUSH_PATH}.org"
 
-get_amend() {
-  if [ -z `git log --pretty=oneline -1 | cut -d " " -f 2- | grep "^\[${PREFIX}]"` ]
-  then
-    return 1
-  fi
+NOW_PREFIX="from now"
+CHECK_MARK='CHECK_FOR_GIT_NOW'
 
-  local added_files=`git diff --name-only --cached`
-  for f1 in `git diff --name-only HEAD^ HEAD`
-  do
-    for f2 in $added_files
-    do
-      if [ $f1 = $f2 ]
-      then
-        return 1
-      fi
-    done
+enable_check () {
+  [ ! -d "$HOOKS_DIR" ] && {
+    mkdir "$HOOKS_DIR" || return 1
+  }
+  (
+    GIT_NOW_CHECK_TEXT="$(
+      { cat <<EOF1 ; cat <<'EOF2'
+#!/bin/sh
+
+# $CHECK_MARK
+
+NOW_PREFIX="$NOW_PREFIX"
+
+EOF1
+
+check_now_commit () {
+  z40=0000000000000000000000000000000000000000
+
+  IFS=' '
+  while read local_ref local_sha remote_ref remote_sha ; do
+   [ "$local_sha" != $z40 ] && {
+    if [ "$remote_sha" = $z40 ]; then
+     # New branch, examine all commits
+     range="$local_sha"
+    else
+     # Update to existing branch, examine new commits
+     range="$remote_sha..$local_sha"
+    fi
+
+    # Check for git-now commits
+    commit=`git rev-list -n 1 --grep "^[$NOW_PREFIX]" "$range"`
+    [ -n "$commit" ] && {
+     echo "Found [$NOW_PREFIX] in $local_ref, not pushing"
+     exit 1
+    }
+   }
   done
-  echo "--amend"
-  return 1
 }
 
-if [ $# -eq 0 ]
-then
-  # git add -u
-  # git commit -m "${MESSAGE}"
-  printf "${MESSAGE}\n\n%s" "`git diff --cached`" | git commit -F -
-else
-  case "$1" in
-    --compact)
-      git add -A
-      AMEND=`get_amend`
-      git commit $AMEND -m "${MESSAGE}"
-      ;;
-    --recent)
-      git add -A
-      if [ -z "`git log --since=1.minute`" ]
-      then
-        git commit -m "${MESSAGE}"
-      else
-        git commit --amend -m "${MESSAGE}"
-      fi
-      ;;
-    --fixup)
-      FIRST_NOW_COMMIT=`git log --pretty=oneline --grep="${PREFIX}" | tail -n 1 | cut -d " " -f 1`
-      if [ -n "${FIRST_NOW_COMMIT}" ]
-      then
-        git reset ${FIRST_NOW_COMMIT}
-        git add -A
-        if [ $# -eq 2 ]
-        then
-          git commit --amend -m "$2"
-        else
-          git commit --amend
-        fi
-      else
-        echo 'No `git-now` commits.'
-      fi
-      ;;
-    --rebase)
-      FIRST_NOW_COMMIT=`git log --pretty=oneline --grep="${PREFIX}" | tail -n 1 | cut -d " " -f 1`
-      INITIAL_COMMIT=`git log --pretty=oneline | tail -n 1 | cut -d " " -f 1`
+ORG_PATH="${0}.org"
+disable_message='pre-push hook for git-now checking has been disabled.'
 
-      if [ "${FIRST_NOW_COMMIT}" != "${INITIAL_COMMIT}" ]
-      then
-        git rebase -i ${FIRST_NOW_COMMIT}^
-      else
-        git rebase -i --root
-      fi
-      ;;
-    *)
-      # if [ _$1 != _--all ]
-      # then
-      #   git add $@
-      # else
-      #   git add -u
-      #   git add .
-      # fi
-      # printf "${MESSAGE}\n\n%s" "`git diff --cached`" | git commit -F -
-      echo "$1 is illegal option." >&2
-      echo "Supproted options:" >&2
-      printf -- '--%s\n' compact recent fixup rebase >&2
-      exit 1
-      ;;
-  esac
+if [ -f "$ORG_PATH" ]; then
+  TTY_TMP=`mktemp`
+  cat >"$TTY_TMP"
+  check_now_commit <"$TTY_TMP"
+  check_exit_code=$?
+  if [ "$check_exit_code" -eq 0 ]; then
+    mv -f "$ORG_PATH" "$0" \
+    && {
+      echo "$disable_message"
+      eval "'$0'" '"$@"' "< '${TTY_TMP:?}'"
+    }
+    result_exit_code=$?
+  else
+    result_exit_code=$check_exit_code
+  fi
+
+  rm -f "$TTY_TMP"
+  exit $result_exit_code
+else
+  check_now_commit \
+  && rm -f "$0" \
+  && echo "$disable_message"
 fi
+
+EOF2
+      }
+    )"
+
+    [ -f "$PRE_PUSH_PATH" ] && {
+      if grep -qE "$CHECK_MARK" "$PRE_PUSH_PATH" ; then
+        echo 'pre-push hook for git-now checking is already enabled.'
+        return 0
+      else
+        mv "$PRE_PUSH_PATH" "$PRE_PUSH_ORG_PATH" || return $?
+        echo "Original pre-push hook has been moved to $PRE_PUSH_ORG_PATH"
+      fi
+    }
+
+    echo "$GIT_NOW_CHECK_TEXT" >"$PRE_PUSH_PATH" \
+    && chmod a+x "$PRE_PUSH_PATH" \
+    && echo 'pre-push hook for git-now checking has been enabled.'
+  )
+}
+
+get_parent () {
+  git log -2 --pretty=format:'%d' --abbrev-commit \
+  | tail -n 1 \
+  | sed -e 's/(.*,//g;s/)//' \
+  | tr -d ' '
+}
+
+get_now_log () {
+  git log --pretty=oneline --grep="${NOW_PREFIX}" "$@"
+}
+
+get_name_only_diff () {
+  git diff --cached --name-only
+}
+
+MESSAGE="[${NOW_PREFIX}] "`date '+"%F %T"'`
+
+case "$1" in
+  '')
+    printf "${MESSAGE}\n\n%s" "`get_name_only_diff`" \
+    | git commit -F - || exit $? \
+    && enable_check
+    ;;
+  --compact)
+    if git log --pretty=oneline -1 \
+       | cut -d " " -f 2- \
+       | grep -q "^\[${NOW_PREFIX}]"
+    then
+      git commit --amend
+    else
+      printf "${MESSAGE}\n\n%s" "`get_name_only_diff`" \
+      | git commit -F -
+    fi \
+    && enable_check
+    ;;
+  --disable-check)
+    [ -f "$PRE_PUSH_PATH" ] \
+    && grep -qvE "$CHECK_MARK" "$PRE_PUSH_PATH" \
+    && {
+      if [ -f "$PRE_PUSH_ORG_PATH" ]; then
+        mv -f "$PRE_PUSH_ORG_PATH" "$PRE_PUSH_PATH"
+      else
+        rm -f "$PRE_PUSH_PATH"
+      fi
+    }
+    ;;
+  --log)
+    if [ _"$2" = _--only-id ] ; then
+      get_now_log | cut -d ' ' -f 1
+    else
+      get_now_log
+    fi
+    ;;
+  --only-title)
+    git commit -m "${MESSAGE}" \
+    && enable_check
+    ;;
+  --with-diff-contents)
+    printf "${MESSAGE}\n\n%s" "`git diff --cached`" \
+    | git commit -F - \
+    && enable_check
+    ;;
+  --rebase)
+    case "$2" in
+      --all)
+        REBASE_OPTION=
+        ;;
+      --from-parent)
+        REBASE_OPTION="`get_parent`..HEAD"
+        ;;
+      *[!0-9]*)
+        {
+          printf '%s\n' \
+            "$1 is illegal option." \
+            'Supproted option is number or:' \
+          && printf -- '--%s\n' \
+            all \
+            from-parent
+        } >&2
+        exit 1
+        ;;
+      *)
+        REBASE_OPTION="-${2:-20}"
+        ;;
+    esac
+
+    FIRST_NOW_COMMIT=`get_now_log $REBASE_OPTION | tail -n 1 | cut -d ' ' -f 1`
+    INITIAL_COMMIT=`git rev-list --max-parents=0 HEAD`
+
+    if [ -z "$FIRST_NOW_COMMIT" ]; then
+      echo 'No git-now commits.'
+    elif [ "$FIRST_NOW_COMMIT" = "$INITIAL_COMMIT" ]; then
+      git rebase -i --root
+    else
+      git rebase -i "$FIRST_NOW_COMMIT~"
+    fi
+    ;;
+  *)
+    {
+      printf '%s\n' \
+        "$1 is illegal option." \
+        'Supproted options:' \
+      && printf -- '--%s\n' \
+        compact \
+        disable-check \
+        log \
+        rebase \
+        only-title \
+        with-diff-contents
+    } >&2
+    exit 1
+    ;;
+esac
