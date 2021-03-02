@@ -59,6 +59,7 @@
   sw = switch
   br = branch
   adp = add --patch
+  adpu = !sh -c 'git add --intent-to-add -- \"$@\" && git add --patch -- \"$@\"' _
   ada = add --all
   cm = commit
   cmm = commit -m
