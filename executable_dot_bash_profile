@@ -33,20 +33,14 @@ load_with_filecheck () {
 eval "`
   linuxbrew_path=/home/linuxbrew/.linuxbrew/bin/brew
   if [ -f "$linuxbrew_path" ] && [ -x "$linuxbrew_path" ] ; then
-    $linuxbrew_path shellenv
-  else
-    echo ':'
+    eval "$linuxbrew_path" shellenv
   fi
-`"
 
-eval "`
   fnm_dir=$HOME/.fnm
   fnm_path=$fnm_dir/fnm
   if [ -f "$fnm_path" ] && [ -x "$fnm_path" ] ; then
-    echo "export PATH='${fnm_dir}:$PATH'"
-    $fnm_path env
-  else
-    echo ':'
+    echo 'export PATH="'"${fnm_dir}"':$PATH"'
+    eval "$fnm_path" env
   fi
 `"
 
@@ -55,7 +49,7 @@ export PATH="`
   if [ -d "$home_bin_path" ] ; then
     echo "${home_bin_path}:$PATH"
   else
-    echo $PATH
+    echo "$PATH"
   fi
 `"
 
@@ -68,7 +62,7 @@ case $- in
 esac
 
 
-export HISTFILE=${HISTFILE:-$HOME/.bash_history}
+export HISTFILE="${HISTFILE:-$HOME/.bash_history}"
 export HISTCONTROL=ignoreboth
 export HISTIGNORE=echo:ls:la:ll:[fb]g:exit:pwd:clear:reset
 export HISTSIZE=1000
