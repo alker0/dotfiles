@@ -1,9 +1,9 @@
 eval "$( ({
   echo ds 'du -sh'
 
-  if [ -n "`command -v git`" ] ; then
+  [ -n "`command -v git`" ] && {
     echo g 'git'
-  fi
+  }
 
   history_append='history -a'
   if [ -n "`command -v powershell`" ] ; then
@@ -51,6 +51,10 @@ eval "$( ({
   }
 
 }) | sed -E "s/^([_[:alnum:]]+) /alias \1='/;s/$/'/"
+
+  [ -n "`command -v gh`" ] && {
+    gh completion -s bash
+  }
 )"
 
 
