@@ -52,6 +52,24 @@ $(
     echo 'czcd=cd "$(chezmoi source-path)"'
     echo 'czxt=chezmoi execute-template'
   fi
+
+  if [ -n "$(command -v yarn)" ]; then
+    echo 'yr=yarn'
+    echo 'yrad=yarn add'
+    echo 'yrdd=yarn dedupe'
+    echo 'yri=yarn install'
+    echo 'yridd=yarn install && yarn dedupe'
+    echo 'yrio=yarn info'
+    echo 'yrni=yarn npm info'
+    echo 'yrnif=yarn npm info --fields'
+    echo 'yrpa=yarn patch'
+    echo 'yrpac=yarn patch-commit'
+    echo 'yrpeer=yarn explain peer-requirements'
+    echo 'yrsdk=yarn pnpify --sdk'
+    echo 'yrui=yarn upgrade-interactive'
+    echo 'yrw=yarn workspace'
+    echo 'yrwh=yarn workspace'
+  fi
 )
 EOF
 
