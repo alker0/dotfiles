@@ -9,55 +9,63 @@ export TZ=JST-9
 export PAGER=less
 export LESS='-I -R -M -W -x2'
 
-set_standard_aliases () {
-  [ -x /usr/bin/dircolors ] && {
-    [ -r ~/.dircolors ] && eval "`dircolors -b ~/.dircolors`" || eval "`dircolors -b`"
+set_standard_aliases() {
+  if [ -x /usr/bin/dircolors ]; then
+    if [ -r "$HOME/.dircolors" ]; then
+      eval "$(dircolors -b "$HOME/.dircolors")"
+    else 
+      eval "$(dircolors -b)"
+    fi
 
-    eval "`
-      for cmd_name in ls grep fgrep egrep
-      do
-        echo "alias $cmd_name='$cmd_name --color=auto'"
-      done
-      #dir vdir
-    `"
-  }
+    #dir vdir
+    for cmd_name in ls grep fgrep egrep
+    do
+      alias "$cmd_name=$cmd_name --color=auto"
+    done
+  fi
 
   alias la='ls -A'
   alias ll='ls -Alh'
 }
 
-load_with_filecheck () {
-  [ -f "$1" ] && . $1
+load_with_filecheck() {
+  if [ -f "$1" ]; then
+    . "$1"
+  fi
 }
 
-eval "`
+eval "$(
   linuxbrew_path=/home/linuxbrew/.linuxbrew/bin/brew
   if [ -f "$linuxbrew_path" ] && [ -x "$linuxbrew_path" ] ; then
-    eval "$linuxbrew_path" shellenv
+    "$linuxbrew_path" shellenv
   fi
 
-  fnm_dir=$HOME/.fnm
-  fnm_path=$fnm_dir/fnm
+  fnm_dir="$HOME/.fnm"
+  fnm_path="$fnm_dir/fnm"
   if [ -f "$fnm_path" ] && [ -x "$fnm_path" ] ; then
-    echo 'export PATH="'"${fnm_dir}"':$PATH"'
-    eval "$fnm_path" env
-  fi
-`"
 
-export PATH="`
+    cat <<EOF
+export PATH="$fnm_dir:\$PATH"
+EOF
+
+    "$fnm_path" env
+  fi
+)"
+
+export PATH="$(
   home_bin_path="$HOME/bin"
   if [ -d "$home_bin_path" ] ; then
     echo "${home_bin_path}:$PATH"
   else
     echo "$PATH"
   fi
-`"
+)"
 
 case $- in
   *i*) ;;
   *)
     set_standard_aliases
-    load_with_filecheck ~/.bash_aliases
+    load_with_filecheck "$HOME/.bash_aliases"
     return ;;
 esac
 
@@ -76,7 +84,7 @@ shopt -s nocaseglob
 shopt -s checkwinsize
 
 
-create_prompt_string () {
+create_prompt_string() {
   (
     # Terminal Title => \e]0;\h_\u@\w\a
     ps1_title='\e]0;\h_\u@\w\a'
@@ -97,7 +105,15 @@ create_prompt_string () {
     # Last Status Part => $?
     # Last Status Part (Colored)
     # => $(lst_st=$? && [ "$lst_st" == 0 ] && echo "\[\e[92m\]" || echo "\[\e[31m\]"; exit $lst_st)$?\[\e[0m\]
-    ps1_status='$(lst_st=$? && [ "$lst_st" == 0 ] && echo "\[\e[92m\]" || echo "\[\e[31m\]"; exit $lst_st)$?\[\e[0m\]'
+    ps1_status="$(printf '%s' \
+      '$(lst_st=$? && ' \
+      'if [ "$lst_st" -eq "0" ];' \
+      'then echo "\[\e[92m\]";' \
+      'else echo "\[\e[31m\]";' \
+      'fi;' \
+      'exit $lst_st)' \
+      '$?\[\e[0m\]'
+    )"
 
     # Dollar Part => \$
     # Dollar Part (Colored)
@@ -107,11 +123,15 @@ create_prompt_string () {
     echo "${ps1_title}${ps1_root}[ ${ps1_user} ] ${ps1_location}\n${ps1_status} ${ps1_dollar} "
   )
 }
-export PS1="`create_prompt_string`"
+export PS1="$(create_prompt_string)"
 
 
 stty stop undef
 
 set_standard_aliases
-load_with_filecheck ~/.bash_aliases
+load_with_filecheck  "$HOME/.bash_aliases"
+
+if [ -n "$(command -v gh)" ]; then
+  eval "$(gh completion -s bash)"
+fi
 

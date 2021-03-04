@@ -1,76 +1,76 @@
-eval "$( ({
-  echo ds 'du -sh'
+while IFS= read -r alias_arg ; do
+  alias "$alias_arg"
+done <<EOF
+$(
+  echo 'ds=du -sh'
 
-  [ -n "`command -v git`" ] && {
-    echo g 'git'
-  }
+  if [ -n "$(command -v git)" ]; then
+      echo 'g=git'
+  fi
 
   history_append='history -a'
-  if [ -n "`command -v powershell`" ] ; then
-    echo pwsh 'powershell'
+  if [ -n "$(command -v powershell)" ]; then
+    echo 'pwsh=powershell'
 
     powershell_command='powershell -Command'
-    echo pwshx "$powershell_command"
-    echo poff "$history_append && $powershell_command Stop-Computer"
-    echo rbt "$history_append && $powershell_command Restart-Computer"
+    echo "pwshx=$powershell_command"
+    echo "poff=$history_append && $powershell_command Stop-Computer"
+    echo "rbt=$history_append && $powershell_command Restart-Computer"
 
   else
     shutdown_path='/mnt/c/Windows/System32/shutdown.exe'
-    [ -x $shutdown_path ] && {
-      echo poff "$history_append && $shutdown_path -s -t 0"
-      echo rbt "$history_append && $shutdown_path -r -t 0"
-    }
+    if [ -x $shutdown_path ]; then
+      echo "poff=$history_append && $shutdown_path -s -t 0"
+      echo "rbt=$history_append && $shutdown_path -r -t 0"
+    fi
   fi
 
-  [ -n "`command -v docker`" ] && {
-    echo dkr 'docker'
-    echo dki 'docker image'
-    echo dkc 'docker container'
-    echo dkcm 'docker-compose'
-    echo dkbx 'docker buildx'
-  }
+  if [ -n "$(command -v docker)" ]; then
+    echo 'dkr=docker'
+    echo 'dki=docker image'
+    echo 'dkc=docker container'
+    echo 'dkcm=docker-compose'
+    echo 'dkbx=docker buildx'
+  fi
 
-  [ -n "`command -v chezmoi`" ] && {
-    echo cz 'chezmoi'
-    echo czad 'chezmoi add'
-    echo czadt 'chezmoi add --template'
-    echo czadat 'chezmoi add --autotemplate'
-    echo czap 'chezmoi apply'
-    echo czdf 'chezmoi diff'
-    echo czdt 'chezmoi data'
-    echo cze 'chezmoi edit'
-    echo czec 'chezmoi edit-config'
-    echo czfg 'chezmoi forget'
-    echo czm 'chezmoi managed'
-    echo czunm 'chezmoi unmanaged'
-    echo czsp 'chezmoi source-path'
-    echo czupd 'chezmoi update'
-    echo czupg 'chezmoi upgrade'
-    echo czcd 'cd `chezmoi source-path`'
-    echo czxt 'chezmoi execute-template'
-  }
+  if [ -n "$(command -v chezmoi)" ]; then
+    echo 'cz=chezmoi'
+    echo 'czad=chezmoi add'
+    echo 'czadt=chezmoi add --template'
+    echo 'czadat=chezmoi add --autotemplate'
+    echo 'czap=chezmoi apply'
+    echo 'czdf=chezmoi diff'
+    echo 'czdt=chezmoi data'
+    echo 'cze=chezmoi edit'
+    echo 'czec=chezmoi edit-config'
+    echo 'czfg=chezmoi forget'
+    echo 'czm=chezmoi managed'
+    echo 'czunm=chezmoi unmanaged'
+    echo 'czsp=chezmoi source-path'
+    echo 'czupd=chezmoi update'
+    echo 'czupg=chezmoi upgrade'
+    echo 'czcd=cd "$(chezmoi source-path)"'
+    echo 'czxt=chezmoi execute-template'
+  fi
+)
+EOF
 
-}) | sed -E "s/^([_[:alnum:]]+) /alias \1='/;s/$/'/"
-
-  [ -n "`command -v gh`" ] && {
-    gh completion -s bash
-  }
-)"
-
-
-fenv () {
+fenv() {
   (
-    if [ -f "${FENV_EXCLUDES_PATH:=${HOME}/.config/fenv/fenv-excludes}" ] ; then
-      fenv_excludes=$(cat < ${FENV_EXCLUDES_PATH} | tr -s '\n' | tr '\n' '|')
+    if [ -f "${FENV_EXCLUDES_PATH:=${HOME}/.config/fenv/fenv-excludes}" ]; then
+      fenv_excludes="$(cat < "${FENV_EXCLUDES_PATH}" | tr -s '\n' | tr '\n' '|')"
 
-      fenv_sed_pattern=$(cat <<EOP | tr -d '\n'
-      /[:]{2}|[CD]:[\\]|[CD]:$/b;
-      s/=([^:]+):/=*\n--------\1\n--------/;
+      fenv_sed_pattern="$(cat <<EOP
+      /[:]{2}|[CD]:[\\]|[CD]:$/b
+      s/=([^:]+):/=*\n--------\1\n--------/
       s/:/\n--------/g
 EOP
-      )
+      )"
 
-      env | grep -E -v "^(${fenv_excludes})=" | sort | sed -r "${fenv_sed_pattern}"
+      env \
+        | grep -E -v "^(${fenv_excludes})=" \
+        | sort \
+        | sed -r "${fenv_sed_pattern}"
     else
       echo "${FENV_EXCLUDES_PATH} is missing or invalid"
       return 1
@@ -78,40 +78,40 @@ EOP
   )
 }
 
-unqh () {
+unqh() {
   # inspect -> type unqh
   # delete -> unset -f unqh
   # list -> set | less
-  history -a &&
-  (
-    reverse_command () {
-      nl -n rz | sort -nr | cut -f 2-
-    } &&
-    cat ${HISTFILE:=${HOME}/.bash_history} |
-    reverse_command |
-    awk '!x[$0]++' |
-    reverse_command > /tmp/history &&
-    cat /tmp/history > $HISTFILE
-  ) &&
-  history -c &&
-  history -r
+  history -a \
+    && (
+      reverse_command() {
+        nl -n rz | sort -nr | cut -f 2-
+      } \
+      && cat "${HISTFILE:=${HOME}/.bash_history}" \
+        | reverse_command \
+        | awk '!x[$0]++' \
+        | reverse_command > /tmp/history \
+        && cat /tmp/history > "$HISTFILE"
+    ) \
+    && history -c \
+    && history -r
 }
 
-[ -n "`command -v chezmoi`" ] && {
-  czxps () {
+if [ -n "$(command -v chezmoi)" ]; then
+  czxps() {
     chezmoi execute-template --init --promptString=$@
   }
-}
+fi
 
-[ -n "`command -v docker`" ] && {
+if [ -n "$(command -v docker)" ]; then
   # buildx local cache option
-  dkbxlc () {
+  dkbxlc() {
     (
-      cache_dir=${2:-./cache/images/${1?}}
+      cache_dir="${2:-./cache/images/${1?}}"
       echo "--set ${1}.cache-from=type=local,src=${cache_dir} --set ${1}.cache-to=type=local,dest=${cache_dir}"
     )
   }
-}
+fi
 
 {{ .additional.aliases -}}
 
