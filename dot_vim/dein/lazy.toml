@@ -1,1 +1,25 @@
-#
+[[plugins]]
+repo = 'cespare/vim-toml'
+on_ft = 'toml'
+
+[[plugins]]
+repo = 'fatih/vim-go'
+on_ft = ['go', 'tmpl', 'chezmoitmpl']
+hook_post_update = '''
+let s:substitute_target = fnameescape('syntax/gotexttmpl.vim')
+call readfile(s:substitute_target)
+  \  ->map("substitute(v:val, '"
+  \    . '\v(match +goTplIdentifier [^/]*/[^/]*)\\s([^/]*/)'
+  \    . "', '"
+  \    . '\1[:blank:]\2'
+  \    . "', 'i')")
+  \  ->map("substitute(v:val, '"
+  \    . '\v(match +goTplIdentifier .+])(\+\\)'
+  \    . "', '"
+  \    . '\1\\\2'
+  \    . "', 'i')")
+  \  ->writefile(s:substitute_target)
+'''
+# syn match       goTplIdentifier  contained   /\.[^\s}]+\>/
+# ---- `\s` to `[:blank:]` ----
+# ---- `+` to `\+` ----

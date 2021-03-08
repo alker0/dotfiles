@@ -9,33 +9,32 @@ if !isdirectory(s:dein_repo_dir)
 endif
 let &runtimepath = s:dein_repo_dir . ',' . &runtimepath
 
+if !dein#load_state(s:dein_dir)
+  finish
+endif
+
 let g:dein#install_max_processes = 16
 let g:dein#install_message_type = 'none'
 let g:dein#types#git#clone_depth = 1
 " let g:dein#types#git#pull_command = 'pull --ff --ff-only --update-shallow'
 let g:dein#install_github_api_token = '{{ .vim.dein_token }}'
 
-if !dein#load_state(s:dein_dir)
-  finish
-endif
-
 " Update when this file is changed
 call dein#begin(s:dein_dir, expand('<sfile>'))
 
 let s:dein_config_dir = g:vim_config_dir . '/dein'
 
+let s:opt_dir = g:vim_config_dir . '/pack/local/opt'
+call dein#add(s:opt_dir . '/chezmoi', #{
+  \   lazy: 0,
+  \   frozen: 1,
+  \ })
 call dein#load_toml(s:dein_config_dir . '/eager.toml', #{lazy: 0})
 call dein#load_toml(s:dein_config_dir . '/lazy.toml', #{lazy: 1})
-call dein#add(s:dein_config_dir . '/chezmoi',
-  \ #{
-  \   depends: 'fatih/vim-go',
-  \   frozen: 1,
-  \   lazy: 0,
-  \ })
 
 call dein#end()
 call dein#save_state()
 
 if has('vim_starting') && dein#check_install()
-    call dein#install()
+  call dein#install()
 endif
