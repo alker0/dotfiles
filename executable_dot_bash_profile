@@ -39,18 +39,11 @@ eval "$(
   if [ -f "$linuxbrew_path" ] && [ -x "$linuxbrew_path" ] ; then
     "$linuxbrew_path" shellenv
   fi
-
-  fnm_dir="$HOME/.fnm"
-  fnm_path="$fnm_dir/fnm"
-  if [ -f "$fnm_path" ] && [ -x "$fnm_path" ] ; then
-
-    cat <<EOF
-export PATH="$fnm_dir:\$PATH"
-EOF
-
-    "$fnm_path" env
-  fi
 )"
+
+if [ -n "$(command -v fnm)" ]; then
+  eval "$(fnm env)"
+fi
 
 export PATH="$(
   home_bin_path="$HOME/bin"
