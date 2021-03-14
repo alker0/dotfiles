@@ -43,6 +43,7 @@
 
 [alias]
   al = !git config --get-regexp ^alias\\. | cut -d '.' -f 2 | sed -e 's/ / = /'
+  alias = !git config --get-regexp ^alias\\. | cut -d '.' -f 2 | sed -e 's/ / = /'
   cf = config
   cfl = config --list
   cl = clone
