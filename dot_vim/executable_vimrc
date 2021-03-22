@@ -82,9 +82,7 @@ set formatoptions+=mM
 
 augroup vimrc
   " Disable auto comment out
-  autocmd VimEnter *
-    \ set formatoptions-=ro
-    \ | autocmd vimrc FileType * set formatoptions-=ro
+  autocmd VimEnter * set formatoptions-=ro | autocmd vimrc FileType * set formatoptions-=ro
 augroup END
 
 " ---- visual ----
