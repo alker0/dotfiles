@@ -14,7 +14,7 @@ export NODE_REPL_HISTORY=''
 export DOCKER_CONFIG="${XDG_CONFIG_HOME:-"$HOME/.config"}/docker"
 export FNM_DIR="${XDG_CONFIG_HOME:-"$HOME/.config"}/fnm"
 export AWS_SHARED_CREDENTIALS_FILE="${XDG_CONFIG_HOME:-"$HOME/.config"}/aws/credentials"
-export AWS_SHARED_CONFIG_FILE="${XDG_CONFIG_HOME:-"$HOME/.config"}/aws/config"
+export AWS_CONFIG_FILE="${XDG_CONFIG_HOME:-"$HOME/.config"}/aws/config"
 
 set_standard_aliases() {
   if [ -x /usr/bin/dircolors ]; then
