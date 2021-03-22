@@ -6,22 +6,40 @@ fi
 
 export TZ=JST-9
 
+export INPUTRC="${XDG_CONFIG_HOME:-"$HOME/.config"}/readline/inputrc"
 export PAGER=less
 export LESS='-I -R -M -W -x2'
+export LESSHISTFILE=-
+export NODE_REPL_HISTORY=''
+export DOCKER_CONFIG="${XDG_CONFIG_HOME:-"$HOME/.config"}/docker"
+export FNM_DIR="${XDG_CONFIG_HOME:-"$HOME/.config"}/fnm"
+export AWS_SHARED_CREDENTIALS_FILE="${XDG_CONFIG_HOME:-"$HOME/.config"}/aws/credentials"
+export AWS_SHARED_CONFIG_FILE="${XDG_CONFIG_HOME:-"$HOME/.config"}/aws/config"
 
 set_standard_aliases() {
   if [ -x /usr/bin/dircolors ]; then
-    if [ -r "$HOME/.dircolors" ]; then
-      eval "$(dircolors -b "$HOME/.dircolors")"
-    else 
-      eval "$(dircolors -b)"
-    fi
+    eval "$({
+      dircolors_path="${XDG_CONFIG_HOME:-"$HOME/.config"}/dircolors"
+      if [ -r "$dircolors_path" ]; then
+        dircolors -b "$dircolors_path"
+      else
+        dircolors -b
+      fi
+    })"
 
     #dir vdir
     for cmd_name in ls grep fgrep egrep
     do
       alias "$cmd_name=$cmd_name --color=auto"
     done
+  fi
+
+  if [ -n "$(command -v wget)" ]; then
+    alias wget="wget --hsts-file $(
+      wget_data_dir="${XDG_DATA_HOME:-"$HOME/.local/share"}/wget"
+      [ ! -d "$wget_data_dir" ] && mkdir -p "$wget_data_dir"
+      echo "$wget_data_dir"
+    )/wget-hsts"
   fi
 
   alias la='ls -A'
@@ -117,7 +135,6 @@ create_prompt_string() {
   )
 }
 export PS1="$(create_prompt_string)"
-
 
 stty stop undef
 
