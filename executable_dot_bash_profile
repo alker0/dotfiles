@@ -53,20 +53,26 @@ load_with_filecheck() {
   fi
 }
 
-eval "$(
-  linuxbrew_path=/home/linuxbrew/.linuxbrew/bin/brew
-  if [ -f "$linuxbrew_path" ] && [ -x "$linuxbrew_path" ] ; then
-    "$linuxbrew_path" shellenv
-  fi
-)"
+if [ -z "$(command -v brew)" ]; then
+  eval "$(
+    linuxbrew_path=/home/linuxbrew/.linuxbrew/bin/brew
+    if [ -f "$linuxbrew_path" ] && [ -x "$linuxbrew_path" ] ; then
+      "$linuxbrew_path" shellenv
+    fi
+  )"
+fi
 
-if [ -n "$(command -v fnm)" ]; then
+if [ -n "$(command -v fnm)" ] \
+    && echo "$PATH" \
+    | grep -qvE "(^|:)/tmp/fnm[^:]+/bin:"; then
   eval "$(fnm env)"
 fi
 
 export PATH="$(
   home_bin_path="$HOME/bin"
-  if [ -d "$home_bin_path" ] ; then
+  if echo "$PATH" \
+    | grep -qvE "(^|:)${home_bin_path}:" \
+    && [ -d "$home_bin_path" ] ; then
     echo "${home_bin_path}:$PATH"
   else
     echo "$PATH"
