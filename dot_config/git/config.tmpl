@@ -5,8 +5,9 @@
   email = {{ .git.email }}
   name = {{ .git.name }}
 [credential]
-{{- if (index .chezmoi "kernel" | default (dict "osrelease" "")).osrelease | contains "microsoft" }}
-  helper = "/mnt/c/Program\\ Files/Git/mingw64/libexec/git-core/git-credential-manager.exe"
+{{- $gcmPath := joinPath .chezmoi.homeDir "bin" "git-credential-manager-core" }}
+{{- if stat $gcmPath }}
+  helper = {{ $gcmPath }}
 {{- else if eq .chezmoi.os "windows" }}
   helper = manager
 {{- else }}
