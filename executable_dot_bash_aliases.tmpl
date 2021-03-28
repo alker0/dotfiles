@@ -1,81 +1,8 @@
-while IFS= read -r alias_arg ; do
-  alias "$alias_arg"
-done <<EOF
-$(
-  echo 'ds=du -sh'
-
-  if [ -n "$(command -v git)" ]; then
-      echo 'g=git'
-  fi
-
-  history_append='history -a'
-  if [ -n "$(command -v powershell)" ]; then
-    echo 'pwsh=powershell'
-
-    powershell_command='powershell -Command'
-    echo "pwshx=$powershell_command"
-    echo "poff=$history_append && $powershell_command Stop-Computer"
-    echo "rbt=$history_append && $powershell_command Restart-Computer"
-
-  else
-    shutdown_path='/mnt/c/Windows/System32/shutdown.exe'
-    if [ -x $shutdown_path ]; then
-      echo "poff=$history_append && $shutdown_path -s -t 0"
-      echo "rbt=$history_append && $shutdown_path -r -t 0"
-    fi
-  fi
-
-  if [ -n "$(command -v docker)" ]; then
-    echo 'dkr=docker'
-    echo 'dki=docker image'
-    echo 'dkc=docker container'
-    echo 'dkcm=docker-compose'
-    echo 'dkbx=docker buildx'
-  fi
-
-  if [ -n "$(command -v chezmoi)" ]; then
-    echo 'cz=chezmoi'
-    echo 'czad=chezmoi add'
-    echo 'czadt=chezmoi add --template'
-    echo 'czadat=chezmoi add --autotemplate'
-    echo 'czap=chezmoi apply'
-    echo 'czdf=chezmoi diff'
-    echo 'czdt=chezmoi data'
-    echo 'cze=chezmoi edit'
-    echo 'czec=chezmoi edit-config'
-    echo 'czfg=chezmoi forget'
-    echo 'czm=chezmoi managed'
-    echo 'czunm=chezmoi unmanaged'
-    echo 'czsp=chezmoi source-path'
-    echo 'czupd=chezmoi update'
-    echo 'czupg=chezmoi upgrade'
-    echo 'czcd=cd "$(chezmoi source-path)"'
-    echo 'czxt=chezmoi execute-template'
-  fi
-
-  if [ -n "$(command -v yarn)" ]; then
-    echo 'yr=yarn'
-    echo 'yrad=yarn add'
-    echo 'yrdd=yarn dedupe'
-    echo 'yri=yarn install'
-    echo 'yridd=yarn install && yarn dedupe'
-    echo 'yrio=yarn info'
-    echo 'yrni=yarn npm info'
-    echo 'yrnif=yarn npm info --fields'
-    echo 'yrpa=yarn patch'
-    echo 'yrpac=yarn patch-commit'
-    echo 'yrpeer=yarn explain peer-requirements'
-    echo 'yrsdk=yarn pnpify --sdk'
-    echo 'yrui=yarn upgrade-interactive'
-    echo 'yrw=yarn workspace'
-    echo 'yrwh=yarn why'
-  fi
-)
-EOF
+{{ template "aliases/aliases" "bash" }}
 
 fenv() {
   (
-    if [ -f "${FENV_EXCLUDES_PATH:=${HOME}/.config/fenv/fenv-excludes}" ]; then
+    if [ -f "${FENV_EXCLUDES_PATH:=${XDG_CONIFG_HOME:-$HOME/.config}/fenv/fenv-excludes}" ]; then
       fenv_excludes="$(cat < "${FENV_EXCLUDES_PATH}" | tr -s '\n' | tr '\n' '|')"
 
       fenv_sed_pattern="$(cat <<EOP

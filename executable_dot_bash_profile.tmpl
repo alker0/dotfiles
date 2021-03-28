@@ -4,48 +4,10 @@ else
   export LANG=C
 fi
 
-export TZ=JST-9
+{{ template "env/env" "bash" }}
 
-export INPUTRC="${XDG_CONFIG_HOME:-"$HOME/.config"}/readline/inputrc"
-export PAGER=less
-export LESS='-I -R -M -W -x2'
-export LESSHISTFILE=-
-export NODE_REPL_HISTORY=''
-export DOCKER_CONFIG="${XDG_CONFIG_HOME:-"$HOME/.config"}/docker"
-export FNM_DIR="${XDG_CONFIG_HOME:-"$HOME/.config"}/fnm"
-export AWS_SHARED_CREDENTIALS_FILE="${XDG_CONFIG_HOME:-"$HOME/.config"}/aws/credentials"
-export AWS_CONFIG_FILE="${XDG_CONFIG_HOME:-"$HOME/.config"}/aws/config"
-export AZURE_CONFIG_DIR="${XDG_CONFIG_HOME:-"$HOME/.config"}/azure"
-
-set_standard_aliases() {
-  if [ -x /usr/bin/dircolors ]; then
-    eval "$({
-      dircolors_path="${XDG_CONFIG_HOME:-"$HOME/.config"}/dircolors"
-      if [ -r "$dircolors_path" ]; then
-        dircolors -b "$dircolors_path"
-      else
-        dircolors -b
-      fi
-    })"
-
-    #dir vdir
-    for cmd_name in ls grep fgrep egrep
-    do
-      alias "$cmd_name=$cmd_name --color=auto"
-    done
-  fi
-
-  if [ -n "$(command -v wget)" ]; then
-    alias wget="wget --hsts-file $(
-      wget_data_dir="${XDG_DATA_HOME:-"$HOME/.local/share"}/wget"
-      [ ! -d "$wget_data_dir" ] && mkdir -p "$wget_data_dir"
-      echo "$wget_data_dir"
-    )/wget-hsts"
-  fi
-
-  alias la='ls -A'
-  alias ll='ls -Alh'
-}
+alias la='ls -A'
+alias ll='ls -Alh'
 
 load_with_filecheck() {
   if [ -f "$1" ]; then
@@ -62,31 +24,54 @@ if [ -z "$(command -v brew)" ]; then
   )"
 fi
 
-if [ -n "$(command -v fnm)" ] \
-    && echo "$PATH" \
-    | grep -qvE "(^|:)/tmp/fnm[^:]+/bin:"; then
+if [ -n "$(command -v fnm)" ]; then
+  export FNM_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/fnm"
   eval "$(fnm env)"
 fi
 
 export PATH="$(
   home_bin_path="$HOME/bin"
-  if echo "$PATH" \
-    | grep -qvE "(^|:)${home_bin_path}:" \
-    && [ -d "$home_bin_path" ] ; then
-    echo "${home_bin_path}:$PATH"
-  else
-    echo "$PATH"
-  fi
+  case "$PATH" in
+    ${home_bin_path}*)
+      echo "$PATH"
+      ;;
+    *)
+      echo "${home_bin_path}:$PATH"
+      ;;
+  esac
 )"
+
+if [ -x /usr/bin/dircolors ]; then
+  eval "$({
+    dircolors_path="${XDG_CONFIG_HOME:-"$HOME/.config"}/dircolors"
+    if [ -r "$dircolors_path" ]; then
+      dircolors -b "$dircolors_path"
+    else
+      dircolors -b
+    fi
+  })"
+
+  #dir vdir
+  for cmd_name in ls grep fgrep egrep
+  do
+    alias "$cmd_name=$cmd_name --color=auto"
+  done
+fi
+
+if [ -n "$(command -v wget)" ]; then
+  alias wget="wget --hsts-file $(
+    wget_data_dir="${XDG_DATA_HOME:-"$HOME/.local/share"}/wget"
+    [ ! -d "$wget_data_dir" ] && mkdir -p "$wget_data_dir"
+    echo "$wget_data_dir"
+  )/wget-hsts"
+fi
 
 case $- in
   *i*) ;;
   *)
-    set_standard_aliases
     load_with_filecheck "$HOME/.bash_aliases"
     return ;;
 esac
-
 
 export HISTFILE="${HISTFILE:-$HOME/.bash_history}"
 export HISTCONTROL=ignoreboth
@@ -100,7 +85,6 @@ shopt -s dotglob
 shopt -s nocaseglob
 
 shopt -s checkwinsize
-
 
 create_prompt_string() {
   (
@@ -145,10 +129,8 @@ export PS1="$(create_prompt_string)"
 
 stty stop undef
 
-set_standard_aliases
 load_with_filecheck  "$HOME/.bash_aliases"
 
 if [ -n "$(command -v gh)" ]; then
   eval "$(gh completion -s bash)"
 fi
-
