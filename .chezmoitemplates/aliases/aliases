@@ -1,0 +1,131 @@
+{{- if not (kindIs "string" .) }}
+{{- fail "dot must be string" }}
+{{- end }}
+
+{{-
+  $aliases_list := list
+    (dict "name" "ds" "command" "du -sh")
+    (dict
+      "depends-list" (list
+        (dict
+          "depends" "pwsh.exe"
+          "aliases" (list
+            (dict "name" "pwshx" "command" "%s -Command")
+            (dict
+              "name" "poff"
+              "command" "%s -Command Stop-Computer"
+              "note" "with history"
+            )
+            (dict
+              "name" "rbt"
+              "command" "%s -Command Restart-Computer"
+              "note" "with history"
+            )
+          )
+        )
+        (dict "depends" "shutdown.exe"
+          "aliases" (list
+            (dict
+              "name" "poff"
+              "command" "%s -s -t 0"
+              "note" "with history"
+            )
+            (dict
+              "name" "rbt"
+              "command" "%s -r -t 0"
+              "note" "with history"
+            )
+          )
+        )
+      )
+    )
+    (dict
+      "depends" "git"
+      "aliases" (list
+        (dict "name" "g" "command" "%s")
+      )
+    )
+    (dict "depends" "docker"
+      "aliases" (list
+        (dict "name" "dkr" "command" "%s")
+        (dict "name" "dki" "command" "%s image")
+        (dict "name" "dkc" "command" "%s container")
+        (dict "name" "dkcm" "command" "%s-compose")
+        (dict "name" "dkbx" "command" "%s buildx")
+      )
+    )
+    (dict "depends" "chezmoi"
+      "aliases" (list
+        (dict "name" "cm" "command" "%s")
+        (dict "name" "cmad" "command" "%s add")
+        (dict "name" "cmadt" "command" "%s add --template")
+        (dict "name" "cmap" "command" "%s apply")
+        (dict "name" "cmdt" "command" "%s data")
+        (dict "name" "cmdf" "command" "%s diff")
+        (dict "name" "cme" "command" "%s edit")
+        (dict "name" "cmec" "command" "%s edit-config")
+        (dict "name" "cmfg" "command" "%s forget")
+        (dict "name" "cmm" "command" "%s managed")
+        (dict "name" "cmum" "command" "%s unmanaged")
+        (dict "name" "cmsp" "command" "%s source-path")
+        (dict "name" "cmupd" "command" "%s update")
+        (dict "name" "cmupg" "command" "%s upgrade")
+        (dict "name" "cmcd" "note" "chezmoi cd")
+        (dict "name" "cmxt" "command" "%s execute-template")
+      )
+    )
+    (dict "depends" "yarn"
+      "aliases" (list
+        (dict "name" "yr" "command" "%s")
+        (dict "name" "yrad" "command" "%s add")
+        (dict "name" "yrdd" "command" "%s dedupe")
+        (dict "name" "yri" "command" "%s install")
+        (dict "name" "yridd" "commands" (list "%s install" "%s dedupe"))
+        (dict "name" "yrio" "command" "%s info")
+        (dict "name" "yrni" "command" "%s npm info")
+        (dict "name" "yrnif" "command" "%s npm info --fields")
+        (dict "name" "yrpa" "command" "%s patch")
+        (dict "name" "yrpac" "command" "%s patch-commit")
+        (dict "name" "yrpeer" "command" "%s explain peer-requirements")
+        (dict "name" "yrsdk" "command" "%s pnpify --sdk")
+        (dict "name" "yrui" "command" "%s upgrade-interactive")
+        (dict "name" "yrw" "command" "%s workspace")
+        (dict "name" "yrwh" "command" "%s why")
+      )
+    )
+}}
+
+{{- if . | eq "bash" }}
+  {{- range $aliases_list }}
+    {{- $depends_list := get . "depends-list"
+      | default (list (hasKey . "depends" | ternary . ""))
+      | compact
+    }}
+    {{- if empty $depends_list }}
+      {{- template "aliases/bash-alias" . }}
+      {{- "\n" }}
+    {{- else }}
+      {{- "\n" }}
+      {{- range $index, $depends_info := $depends_list }}
+        {{- $depends := get $depends_info "depends" }}
+        {{- if $depends }}
+          {{- if $index | eq 0 -}}
+            if
+          {{- else -}}
+            elif
+          {{- end }}{{- " " -}}
+              [ -n "$(command -v {{ $depends }})" ]; then
+        {{- else -}}
+            else
+        {{- end -}}
+        {{- "\n" }}
+        {{- range get . "aliases" }}{{- "  " -}}
+          {{ template "aliases/bash-alias" (merge . (dict "depends" $depends)) }}
+          {{- "\n" }}
+        {{- end }}
+      {{- end -}}
+          fi
+      {{- "\n" }}
+    {{- end }}
+  {{- end }}
+{{- end }}

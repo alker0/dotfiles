@@ -1,0 +1,8 @@
+{{- if not (kindIs "string" .) }}
+{{- fail "dot must be string" }}
+{{- end }}
+
+{{- if . | eq "bash" }}
+  {{- $config_dir := "${XDG_CONFIG_HOME:-$HOME/.config}" }}
+  {{- template "env/env-vars" (dict "shell" "bash" "config-dir" $config_dir) }}
+{{- end }}

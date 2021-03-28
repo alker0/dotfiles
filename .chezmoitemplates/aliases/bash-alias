@@ -1,0 +1,23 @@
+alias {{ get . "name" }}=
+{{- if get . "note" | eq "chezmoi cd" -}}
+'cd "$(chezmoi source-path)"'
+{{- else if hasKey . "depends" }}
+  {{- $depends := get . "depends" -}}
+  '
+  {{- if get . "note" | eq "with history" -}}
+  {{- "history -a && " }}
+  {{- end }}
+
+  {{- range $index, $command := get . "commands"
+    | default (get . "command"| list)
+    | compact
+  }}
+    {{- if gt $index 0 }}
+    {{- " && " }}
+    {{- end }}
+    {{- printf $command $depends }}
+  {{- end -}}
+  '
+{{- else -}}
+'{{ get . "command" }}'
+{{- end -}}
