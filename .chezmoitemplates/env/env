@@ -5,4 +5,20 @@
 {{- if . | eq "bash" }}
   {{- $config_dir := "${XDG_CONFIG_HOME:-$HOME/.config}" }}
   {{- template "env/env-vars" (dict "shell" "bash" "config-dir" $config_dir) }}
+{{- else if . | eq "elvish" }}
+{
+  {{- $config_dir := "config-dir" }}
+  {{- "\n" -}}{{- "  " -}}
+  var {{ $config_dir }}
+  if (has-env XDG_CONFIG_HOME) {
+    set up:{{ $config_dir }} = (get-env XDG_CONFIG_HOME)
+  } else {
+    set up:{{ $config_dir }} = {{ joinPath "(get-env HOME)'" ".config'" }}
+  }
+  {{- "\n" }}
+
+  {{- template "env/env-vars" (dict "shell" "elvish" "config-dir" $config_dir) }}
+
+  {{- "\n" }}
+}
 {{- end }}

@@ -1,0 +1,172 @@
+{
+  var ja-lang = 'ja_JP.utf8'
+  if (has-value [(locale -a)] $ja-lang) {
+    set-env LANG $ja-lang
+  } else {
+    set-env LANG C
+  }
+}
+
+fn ns-list [@args]{ keys $@args | to-lines | sort }
+
+fn bash-env [@arg-lines]{
+  var exports-text lines = '' []
+  if (is $arg-lines []) {
+    while $true {
+      var line = (read-line)
+      if (==s $line '') {
+        break
+      }
+      set up:lines = [$@lines $line]
+      set up:exports-text = $exports-text"\n"$line
+    }
+  } else {
+    set up:lines = $arg-lines
+    set up:exports-text = (echo &sep="\n" $@arg-lines | slurp)
+  }
+
+  use re
+
+  var maps = [(
+    bash -cx '{ '$exports-text"\n } > /dev/null" 2>&1 | peach [chunk]{
+      var match = [(re:find '^\+ export ''?(\w+)' $chunk)[groups][1][text]]
+      if (not-eq $match []) {
+        var env = $match[0]
+        var pipe = '/tmp/bash-env_'$env
+        if ?(test ! -p $pipe) {
+          if ?(test -e $pipe) {
+            rm -f $pipe
+          }
+          mkfifo $pipe
+        }
+        put [&env=$env &pipe=$pipe]
+      }
+    }
+  )]
+
+  run-parallel {
+    bash -c $exports-text(echo "\n"{(
+      peach [map]{
+        put 'echo "$'$map[env]'" > '$map[pipe]
+      } $maps
+    )} | slurp)
+  } {
+    peach [map]{
+      use str
+
+      var pipe = $map[pipe]
+      set-env $map[env] (slurp < $pipe | str:trim-space (one))
+      rm $pipe
+    } $maps
+  }
+}
+
+{{ template "env/env" "elvish" }}
+
+if (not (has-external 'test')) {
+  edit:add-var test~ [@args]{ (external '[') @args ']' }
+}
+
+if (not (has-external brew)) {
+  var linuxbrew_path = /home/linuxbrew/.linuxbrew/bin/brew
+  if (and ?(test -f $linuxbrew_path) ?(test -x $linuxbrew_path)) {
+    $linuxbrew_path shellenv | bash-env
+  }
+}
+
+if (has-external fnm) {
+  var fnm-dir
+  if (has-env XDG_CONFIG_HOME) {
+    set up:fnm-dir = (get-env XDG_CONFIG_HOME)
+  } else {
+    set up:fnm-dir = {{ joinPath "(get-env HOME)'" ".config" "fnm'" }}
+  }
+
+  set-env FNM_DIR $fnm-dir
+  fnm env --shell=bash | bash-env
+}
+
+{
+  var home-bin = $E:HOME'/bin'
+  if (not-eq paths[0] $home-bin) {
+    set paths = [$home-bin $@paths]
+  }
+}
+
+var ls~ = $e:ls~
+{
+  var config-dir data-dir
+
+  if (has-env XDG_CONFIG_HOME) {
+    set up:config-dir = (get-env XDG_CONFIG_HOME)
+  } else {
+    set up:config-dir = (get-env HOME)'/.config'
+  }
+
+  if (has-env XDG_DATA_HOME) {
+    set up:data-dir = (get-env XDG_DATA_HOME)
+  } else {
+    set up:data-dir = (get-env HOME)'/.local/share'
+  }
+
+  if ?(test -x /usr/bin/dircolors) {
+    var dircolors-path = $config-dir'/dircolors'
+    var dircolors-env
+    if ?(test -r $dircolors-path) {
+      dircolors -b $dircolors-path | bash-env
+    } else {
+      dircolors -b | bash-env
+    }
+
+    set up:ls~ = [@args]{ e:ls --color=auto $@args }
+
+    #dir vdir
+    put grep fgrep egrep | each [cmd-name]{
+      edit:add-var $cmd-name'~' [@args]{
+        (external $cmd-name) --color=auto $@args
+      }
+    }
+  }
+
+  if (has-external wget) {
+    var wget-data-dir = $data-dir'/wget'
+    if ?(test ! -d $wget-data-dir) {
+      mkdir -p $wget-data-dir
+    }
+    edit:add-var wget~ [@args]{ e:wget --hists-file $wget-data-dir'/wget-hsts' $@args }
+  }
+}
+
+fn la [@args]{ ls -A $@args }
+fn ll [@args]{ ls -Ahl $@args }
+
+{{ template "aliases/aliases" "elvish" }}
+
+{
+  use str
+
+  set edit:add-cmd-filters = [
+    [name]{ not (has-value [echo ls la ll fg exit pwd clear reset] $name) }
+    $@edit:add-cmd-filters
+  ]
+}
+
+edit:insert:binding[Ctrl-P] = $edit:history:start~
+edit:history:binding[Ctrl-P] = $edit:history:up~
+edit:history:binding[Ctrl-N] = $edit:history:down-or-quit~
+edit:navigation:binding[Ctrl-Y] = $edit:navigation:insert-selected~
+edit:navigation:binding[Ctrl-J] = $edit:navigation:insert-selected-and-quit~
+edit:navigation:binding[Ctrl-H] = $edit:kill-rune-left~
+edit:navigation:binding[Ctrl-N] = $edit:close-listing~
+edit:navigation:binding[H] = $edit:navigation:left~
+edit:navigation:binding[J] = $edit:navigation:down~
+edit:navigation:binding[K] = $edit:navigation:up~
+edit:navigation:binding[L] = $edit:navigation:right~
+# edit:global-binding
+# edit:completion:binding
+# edit:location:binding
+# edit:histlist:binding
+# edit:lastcmd:binding
+# edit:minibuf:binding
+# pprint $edit:<mode>:binding
+
