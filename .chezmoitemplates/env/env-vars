@@ -28,4 +28,14 @@
     {{- end }}
     {{- "\n" }}
   {{- end }}
+{{- else if get . "shell" | eq "elvish" }}
+  {{- range $env_var_list -}}{{- "  " -}}
+    set-env {{ get . "name" }}{{- " " -}}
+    {{- if get . "config" -}}
+    ${{ $config_dir }}'{{ printf (get . "value") "" }}'
+    {{- else -}}
+    '{{ get . "value" }}'
+    {{- end }}
+    {{- "\n" }}
+  {{- end }}
 {{- end -}}
