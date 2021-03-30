@@ -10,17 +10,22 @@
   (dict "name" "LESSHISTFILE" "value" "-")
   (dict "name" "NODE_REPL_HISTORY" "value" "")
   (dict "name" "DOCKER_CONFIG" "value" "%s/docker" "config" true)
+  (dict "name" "GNUPGHOME" "value" "%s/gnupg" "data" true)
+  (dict "name" "PASSWORD_STORE_DIR" "value" "%s/pass" "data" true)
   (dict "name" "AWS_CONFIG_FILE" "value" "%s/aws/config" "config" true)
   (dict "name" "AWS_SHARED_CREDENTIALS_FILE" "value" "%s/aws/credentials" "config" true)
   (dict "name" "AZURE_CONFIG_DIR" "value" "%s/azure" "config" true)
 }}
 
 {{- $config_dir := get . "config-dir" }}
+{{- $data_dir := get . "data-dir" }}
 {{- if get . "shell" | eq "bash" }}
   {{- range $env_var_list -}}
     export {{ get . "name" }}=
     {{- if get . "config" -}}
     "{{ printf (get . "value") $config_dir }}"
+    {{- else if get . "data" -}}
+    "{{ printf (get . "value") $data_dir }}"
     {{- else if get . "value" | contains " " -}}
     '{{ get . "value" }}'
     {{- else -}}
@@ -33,6 +38,8 @@
     set-env {{ get . "name" }}{{- " " -}}
     {{- if get . "config" -}}
     ${{ $config_dir }}'{{ printf (get . "value") "" }}'
+    {{- else if get . "data" -}}
+    ${{ $data_dir }}'{{ printf (get . "value") "" }}'
     {{- else -}}
     '{{ get . "value" }}'
     {{- end }}
