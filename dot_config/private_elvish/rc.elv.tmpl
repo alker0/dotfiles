@@ -135,6 +135,16 @@ var ls~ = $e:ls~
     }
     edit:add-var wget~ [@args]{ e:wget --hists-file $wget-data-dir'/wget-hsts' $@args }
   }
+
+  if (has-external gpg) {
+    var gpg-data-dir = $data-dir'/gnupg'
+    if ?(test ! -d $gpg-data-dir) {
+      mkdir -p $gpg-data-dir
+      chmod 600 $gpg-data-dir
+    }
+    set-env GPG_TTY (e:tty)
+    edit:add-var gpg~ [@args]{ E:LANG=en_US.utf8 e:gpg $@args }
+  }
 }
 
 fn la [@args]{ ls -A $@args }
