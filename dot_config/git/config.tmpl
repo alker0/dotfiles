@@ -8,9 +8,9 @@
 {{- $gcmPath := joinPath .chezmoi.homeDir "bin" "git-credential-manager-core" }}
 {{- if stat $gcmPath }}
   helper = {{ $gcmPath }}
-{{- if and (lookPath "gpg") (lookPath "pass") }}
+  {{- if and (lookPath "gpg") (lookPath "pass") }}
   credentialStore = gpg
-{{- end }}
+  {{- end }}
 {{- else if eq .chezmoi.os "windows" }}
   helper = manager
 {{- else }}
