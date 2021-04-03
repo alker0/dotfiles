@@ -135,7 +135,7 @@ set showcmd
 if exists('+statusline')
   function! s:defineStatusLineColor()
     " set highlight for statusline
-    if &term =~ '256'
+    if &term =~# '256'
       hi StatusLineFileName term=bold ctermfg=23 ctermbg=206 gui=bold guifg=DarkMagenta guibg=LightGreen
       hi StatusLineSeparator term=bold ctermfg=NONE ctermbg=Blue gui=bold guifg=NONE guibg=Blue
       hi StatusLineFileInfo term=bold ctermfg=LightGreen ctermbg=Black gui=bold guifg=LightGreen guibg=Black
@@ -182,7 +182,7 @@ set noundofile
 set viminfo='100,<50,s10,h,n~/.vim/.viminfo
 
 " ---- terminal ----
-if &shell =~ '\v.*/(|[bd]a|[ackz]|tc|fi)sh'
+if &shell =~# '\v.*/(|[bd]a|[ackz]|tc|fi)sh'
   let &shell.=' --login'
 endif
 
