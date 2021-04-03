@@ -11,11 +11,7 @@ if 1
   let g:local_data_dir = empty($XDG_DATA_HOME) ? expand('$HOME/.local/share') : $XDG_DATA_HOME
   let g:local_config_dir = empty($XDG_CONFIG_HOME) ? expand('$HOME/.config') : $XDG_CONFIG_HOME
 
-  if has('nvim')
-    let g:vim_config_dir = s:local_data_dir . '/nvim'
-  else
-    let g:vim_config_dir = expand('$HOME/.vim')
-  endif
+  let g:vim_config_dir = expand('$HOME/.vim')
 
   " ---- manage plugins ----
   let s:rc_plugin_file = g:vim_config_dir . '/rc/plugins.vim'
