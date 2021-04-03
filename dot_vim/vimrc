@@ -2,6 +2,8 @@ augroup vimrc
   autocmd!
 augroup END
 
+set cpoptions-=C
+
 if 1
   " ---- disable netrw ----
   let g:loaded_netrw = 1
@@ -78,7 +80,8 @@ set formatoptions+=mM
 
 augroup vimrc
   " Disable auto comment out
-  autocmd VimEnter * set formatoptions-=ro | autocmd vimrc FileType * set formatoptions-=ro
+  autocmd VimEnter * set formatoptions-=ro
+    \ | autocmd vimrc FileType * set formatoptions-=ro
 augroup END
 
 " ---- visual ----
@@ -149,15 +152,18 @@ if exists('+statusline')
 
   augroup vimrc
     autocmd VimEnter,ColorScheme * call s:defineStatusLineColor()
-    autocmd BufReadPost,BufWritePost,FileWritePost,FileChangedShellPost * let b:statuslinetime = '(' . strftime("%H:%M %d/%m/%Y", getftime(expand("%:p"))) . ')'
+    autocmd BufReadPost,BufWritePost,FileWritePost,FileChangedShellPost *
+      \ let b:statuslinetime = '(' . strftime("%H:%M %d/%m/%Y", getftime(expand("%:p"))) . ')'
   augroup END
 
   " filename[help][modified][readonly]
   let &statusline='%#StatusLineFileName# %f%1(%h%m%r%)'
   " [fileformat option]
-  let &statusline .= '%#StatusLineSeparator# %#StatusLineFileInfo#[%{&ff}]'
+  let &statusline .= '%#StatusLineSeparator# '
+  let &statusline .= '%#StatusLineFileInfo#[%{&ff}]'
   " (timestamp)
-  let &statusline .= '%#StatusLineSeparator# %#StatusLineFileInfo#%{exists("b:statuslinetime") ? b:statuslinetime : ""}'
+  let &statusline .= '%#StatusLineSeparator# '
+  let &statusline .= '%#StatusLineFileInfo#%{exists("b:statuslinetime") ? b:statuslinetime : ""}'
   " right align
   let &statusline .= '%#StatusLineSeparator#%='
   " line,column N%[filetype]
