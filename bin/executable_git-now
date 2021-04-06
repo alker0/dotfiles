@@ -44,11 +44,11 @@ check_now_commit() {
     fi
 
     # Check for git-now commits
-    commits="$(git rev-list -n 1 --grep "^\[$now_prefix]" "$range")"
-    if [ -n "$commits" ]; then
+    now_commit="$(git rev-list -n 1 --grep "^\[$now_prefix]" "$range")"
+    if [ -n "$now_commit" ]; then
       {
-        echo "Found [$now_prefix] in $local_ref, not pushing"
-        echo "Commits: $commits"
+        echo "$local_ref includes [$now_prefix], therefore the pushing is aborted."
+        echo "Commit: $now_commit"
       } >&2
       return 1
     fi
