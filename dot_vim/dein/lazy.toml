@@ -1,16 +1,3 @@
 [[plugins]]
 repo = 'cespare/vim-toml'
 on_ft = 'toml'
-
-[[plugins]]
-repo = 'fatih/vim-go'
-on_ft = ['go', 'tmpl', 'chezmoitmpl']
-hook_post_update = '''
-let s:substitute_target = fnameescape('syntax/gotexttmpl.vim')
-call readfile(s:substitute_target)
-  \  ->map("substitute(v:val, '"
-  \    . '\vsyn +region +goTpl%(Action|Comment) \zs\s*display\s*$'
-  \    . "', '', 'i')")
-  \  ->writefile(s:substitute_target)
-'''
-# remove display
