@@ -4,6 +4,9 @@
 [user]
   email = {{ .git.email }}
   name = {{ .git.name }}
+{{- if index .git "signingkey" }}
+  signingkey = {{ .git.signingkey }}
+{{- end }}
 [credential]
 {{- $gcmPath := joinPath .chezmoi.homeDir "bin" "git-credential-manager-core" }}
 {{- if stat $gcmPath }}
@@ -18,6 +21,10 @@
 {{- end }}
 [init]
   defaultBranch = main
+[commit]
+{{- if index .git "gpgsign" }}
+  gpgsign = true
+{{- end }}
 [pull]
   ff = only
 [color]
