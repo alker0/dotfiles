@@ -1,3 +1,1 @@
-{{- if index .vim "chezmoi_path" }}
-{{- expandenv .vim.chezmoi_path }}
-{{- end }}
+{{- expandenv (index .vim "chezmoi_path" | default "") }}
