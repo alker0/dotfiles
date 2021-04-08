@@ -28,7 +28,7 @@ call dein#add(s:opt_dir . '/chezmoi', #{
   \   frozen: 1,
   \ })
 {{- else }}
-call dein#add({{ "alker0/chezmoi.vim" }}, #{ lazy: 0 })
+call dein#add({{ "'alker0/chezmoi.vim'" }}, #{ lazy: 0 })
 {{- end }}
 call dein#load_toml(s:dein_config_dir . '/eager.toml', #{lazy: 0})
 call dein#load_toml(s:dein_config_dir . '/lazy.toml', #{lazy: 1})
