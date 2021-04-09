@@ -33,7 +33,7 @@
 }}
 
 {{- $default_diff := (
-    $use_vim | ternary "vimdiff" ($main_editor | eq "code" | ternary "code-diff" "normal-diff")
+    $use_vim | ternary "vimdiff" ($main_editor | eq "code" | ternary "code-diff" "")
   )
 }}
 
