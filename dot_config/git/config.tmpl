@@ -34,11 +34,11 @@
 [status]
   submoduleSummary = 1
 [diff]
+{{- if index .git "default_diff" }}
   tool = {{ .git.default_diff }}
+{{- end }}
 [difftool]
   prompt = false
-[difftool "normal-diff"]
-  cmd = diff -u $LOCAL $REMOTE
 [difftool "code-diff"]
   cmd = code --reuse-window --wait --diff $LOCAL $REMOTE
 [merge]
