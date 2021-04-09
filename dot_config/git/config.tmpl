@@ -4,25 +4,32 @@
 [user]
   email = {{ .git.email }}
   name = {{ .git.name }}
-{{- if index .git "signingkey" }}
+{{- $signingkey := index .git "signingkey" }}
+{{- if $signingkey }}
   signingkey = {{ .git.signingkey }}
 {{- end }}
 [credential]
-{{- $gcmPath := joinPath .chezmoi.homeDir "bin" "git-credential-manager-core" }}
-{{- if stat $gcmPath }}
-  helper = {{ $gcmPath }}
-  {{- if and (lookPath "gpg") (lookPath "pass") }}
-  credentialStore = gpg
-  {{- end }}
-{{- else if eq .chezmoi.os "windows" }}
-  helper = manager
+{{- $use_gpg := false }}
+{{- if lookPath "git.exe" }}
+  helper = !git.exe credential-manager-core
 {{- else }}
+{{-   $gcmPath := joinPath .chezmoi.homeDir "bin" "git-credential-manager-core" }}
+{{-   if stat $gcmPath }}
+  helper = {{ $gcmPath }}
+{{-     if and (lookPath "gpg") (lookPath "pass") }}
+{{- $use_gpg = true }}
+  credentialStore = gpg
+{{-     end }}
+{{-   else if eq .chezmoi.os "windows" }}
+  helper = manager
+{{-   else }}
   helper = cache --timeout 300000
+{{-   end }}
 {{- end }}
 [init]
   defaultBranch = main
 [commit]
-{{- if index .git "gpgsign" }}
+{{- if $signingkey }}
   gpgsign = true
 {{- end }}
 [pull]

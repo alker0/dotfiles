@@ -56,6 +56,7 @@
 {{- $git_name_default := "alker0" }}
 {{- $git_name_prompt := printf "Your name for git? (default is %s)" $git_name_default }}
 {{- $git_name := (promptString $git_name_prompt | default $git_name_default) }}
+{{- $default_use_gpg := not (empty (lookPath "gpg")) }}
 
 [data.git]
   editor = "{{ $git_editor }}"
@@ -63,6 +64,10 @@
   name = "{{ $git_name }}"
   default_diff = "{{ $default_diff }}"
   default_merge = "{{ $default_merge }}"
+  gpg_sign = {{ $default_use_gpg }}
+{{- if $default_use_gpg }}
+  signingkey = ""
+{{- end }}
 
 [data.vim]
   dein_token = ""
