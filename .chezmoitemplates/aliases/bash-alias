@@ -2,27 +2,27 @@ alias {{ get . "name" }}=
 {{- if get . "note" | eq "chezmoi cd" -}}
 'cd "$(chezmoi source-path)"'
 {{- else if hasKey . "depends" }}
-  {{- $depends := get . "depends" -}}
-  '
-  {{- if $is_shutdown -}}
-  {{- $is_shutdown := get . "note" | eq "shutdown" }}
-  {{- "history -a && " }}
-  {{- end }}
+{{-   $depends := get . "depends" -}}
+'
+{{- $is_shutdown := get . "note" | eq "shutdown" }}
+{{-   if $is_shutdown -}}
+{{-     "history -a && " }}
+{{-   end }}
 
-  {{- range $index, $command := get . "commands"
+{{-   range $index, $command := get . "commands"
     | default (get . "command"| list)
     | compact
-  }}
-    {{- if gt $index 0 }}
-    {{- " && " }}
-    {{- end }}
-    {{- printf $command $depends }}
-  {{- end -}}
+}}
+{{-     if gt $index 0 }}
+{{-       " && " }}
+{{-     end }}
+{{-     printf $command $depends }}
+{{-   end -}}
 
-  {{-   if $is_shutdown -}}
-  {{-     " & exit" }}
-  {{-   end -}}
-  '
+{{-   if $is_shutdown -}}
+{{-     " & exit" }}
+{{-   end -}}
+'
 {{- else -}}
 '{{ get . "command" }}'
 {{- end -}}
