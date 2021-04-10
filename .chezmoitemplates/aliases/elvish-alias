@@ -1,24 +1,24 @@
 {{- if get . "note" | eq "chezmoi cd" -}}
 { cd (chezmoi source-path) }
 {{- else }}
-  {{- $depends := get . "depends" }}
+{{-   $depends := get . "depends" }}
 
-  {{- "[@arg]{ " }}
+{{-   "[@arg]{ " }}
 
-  {{- range $index, $command := get . "commands"
+{{-   range $index, $command := get . "commands"
     | default (get . "command" | list)
     | compact
-  }}
-    {{- if gt $index 0 }}
-    {{- " ; " }}
-    {{- end }}
+}}
+{{-     if gt $index 0 }}
+{{-       " ; " }}
+{{-     end }}
 
-    {{- if $depends }}
-    {{- printf $command $depends }}
-    {{- else }}
-    {{- printf $command }}
-    {{- end }}
-  {{- end }}
+{{-     if $depends }}
+{{-       printf $command $depends }}
+{{-     else }}
+{{-       printf $command }}
+{{-     end }}
+{{-   end }}
 
-  {{- " $@arg }" }}
+{{-   " $@arg }" }}
 {{- end -}}

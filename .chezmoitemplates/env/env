@@ -1,21 +1,21 @@
 {{- if not (kindIs "string" .) }}
-{{- fail "dot must be string" }}
+{{-   fail "dot must be string" }}
 {{- end }}
 
 {{- if . | eq "bash" }}
-  {{- $config_dir := "${XDG_CONFIG_HOME:-$HOME/.config}" }}
-  {{- $data_dir := "${XDG_CONFIG_HOME:-$HOME/.local/share}" }}
-  {{- template "env/env-vars" (dict
+{{-   $config_dir := "${XDG_CONFIG_HOME:-$HOME/.config}" }}
+{{-   $data_dir := "${XDG_CONFIG_HOME:-$HOME/.local/share}" }}
+{{-   template "env/env-vars" (dict
       "shell" "bash"
       "config-dir" $config_dir
       "data-dir" $data_dir
     )
-  }}
+}}
 {{- else if . | eq "elvish" }}
 {
-  {{- $config_dir := "config-dir" }}
-  {{- $data_dir := "data-dir" }}
-  {{- "\n" -}}{{- "  " -}}
+{{-   $config_dir := "config-dir" }}
+{{-   $data_dir := "data-dir" }}
+{{-   "\n" -}}{{- "  " -}}
   var {{ $config_dir }} {{ $data_dir }}
   if (has-env XDG_CONFIG_HOME) {
     set up:{{ $config_dir }} = (get-env XDG_CONFIG_HOME)
@@ -27,13 +27,13 @@
   } else {
     set up:{{ $data_dir }} = {{ joinPath "(get-env HOME)'" ".local" "share'" }}
   }
-  {{- "\n" }}
-  {{- template "env/env-vars" (dict
+{{-   "\n" }}
+{{-   template "env/env-vars" (dict
       "shell" "elvish"
       "config-dir" $config_dir
       "data-dir" $data_dir
     )
-  }}
-  {{- "\n" }}
+}}
+{{-   "\n" }}
 }
 {{- end }}
