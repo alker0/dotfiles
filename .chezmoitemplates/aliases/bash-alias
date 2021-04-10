@@ -4,7 +4,8 @@ alias {{ get . "name" }}=
 {{- else if hasKey . "depends" }}
   {{- $depends := get . "depends" -}}
   '
-  {{- if get . "note" | eq "with history" -}}
+  {{- if $is_shutdown -}}
+  {{- $is_shutdown := get . "note" | eq "shutdown" }}
   {{- "history -a && " }}
   {{- end }}
 
@@ -17,6 +18,10 @@ alias {{ get . "name" }}=
     {{- end }}
     {{- printf $command $depends }}
   {{- end -}}
+
+  {{-   if $is_shutdown -}}
+  {{-     " & exit" }}
+  {{-   end -}}
   '
 {{- else -}}
 '{{ get . "command" }}'
