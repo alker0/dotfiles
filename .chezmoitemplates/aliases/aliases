@@ -14,12 +14,12 @@
             (dict
               "name" "poff"
               "command" "%s -Command Stop-Computer"
-              "note" "with history"
+              "note" "shutdown"
             )
             (dict
               "name" "rbt"
               "command" "%s -Command Restart-Computer"
-              "note" "with history"
+              "note" "shutdown"
             )
           )
         )
@@ -28,12 +28,12 @@
             (dict
               "name" "poff"
               "command" "%s -s -t 0"
-              "note" "with history"
+              "note" "shutdown"
             )
             (dict
               "name" "rbt"
               "command" "%s -r -t 0"
-              "note" "with history"
+              "note" "shutdown"
             )
           )
         )
