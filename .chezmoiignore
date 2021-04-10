@@ -8,6 +8,10 @@ README.md
 .profile
 {{- end }}
 
+{{- if not (.shell_list | has "elvish") }}
+.config/elvish/
+{{- end }}
+
 {{- if not ((.chezmoi.os | eq "windows") | or ((index .chezmoi "kernel" | default (dict "osrelease" "")).osrelease | contains "microsoft")) }}
 fenv-excludes
 {{- end }}
