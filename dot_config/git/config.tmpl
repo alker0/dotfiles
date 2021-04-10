@@ -74,8 +74,8 @@
   ftpr = fetch --prune
   mgsq = merge --squash
   mgff = merge --ff-only
-  mgbfp = !sh -c 'git fetch --prune origin && git merge --ff-only --rebase origin ${1:-main}' _
-  mgafp = !sh -c 'git fetch --prune origin && git merge --ff-only origin ${1:-main}' _
+  mgbfp = !sh -c 'git fetch --prune origin && git merge --ff --rebase origin ${1:-main}' _
+  mgafp = !sh -c 'git fetch --prune origin && git merge --ff origin ${1:-main}' _
   sw = switch
   br = branch
   adp = add --patch
