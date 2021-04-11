@@ -6,66 +6,13 @@ fi
 
 {{ template "env/env" "bash" }}
 
-alias la='ls -A'
-alias ll='ls -Alh'
+export GPG_TTY="$(tty)"
 
-load_with_filecheck() {
+bash_profile_load_with_filecheck() {
   if [ -f "$1" ]; then
     . "$1"
   fi
 }
-
-if [ -z "$(command -v brew)" ]; then
-  eval "$(
-    linuxbrew_path=/home/linuxbrew/.linuxbrew/bin/brew
-    if [ -f "$linuxbrew_path" ] && [ -x "$linuxbrew_path" ] ; then
-      "$linuxbrew_path" shellenv
-    fi
-  )"
-fi
-
-if [ -n "$(command -v fnm)" ]; then
-  export FNM_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/fnm"
-  eval "$(fnm env)"
-fi
-
-export PATH="$(
-  home_bin_path="$HOME/bin"
-  case "$PATH" in
-    ${home_bin_path}*)
-      echo "$PATH"
-      ;;
-    *)
-      echo "${home_bin_path}:$PATH"
-      ;;
-  esac
-)"
-
-if [ -x /usr/bin/dircolors ]; then
-  eval "$({
-    dircolors_path="${XDG_CONFIG_HOME:-"$HOME/.config"}/dircolors"
-    if [ -r "$dircolors_path" ]; then
-      dircolors -b "$dircolors_path"
-    else
-      dircolors -b
-    fi
-  })"
-
-  #dir vdir
-  for cmd_name in ls grep fgrep egrep
-  do
-    alias "$cmd_name=$cmd_name --color=auto"
-  done
-fi
-
-if [ -n "$(command -v wget)" ]; then
-  alias wget="wget --hsts-file ${XDG_DATA_HOME:-$HOME/.local/share}/wget/wget-hsts"
-fi
-
-if [ -n "$(command -v gpg)" ]; then
-  export GPG_TTY="$(tty)"
-  alias gpg="LANG=en_US.utf8 gpg"
-fi
 
 case $- in
   *i*) ;;
@@ -74,64 +21,4 @@ case $- in
     return ;;
 esac
 
-export HISTFILE="${HISTFILE:-$HOME/.bash_history}"
-export HISTCONTROL=ignoreboth
-export HISTIGNORE=echo:ls:la:ll:[fb]g:exit:pwd:clear:reset
-export HISTSIZE=1000
-export HISTFILESIZE=3000
-
-shopt -s histappend
-
-shopt -s dotglob
-shopt -s nocaseglob
-
-shopt -s checkwinsize
-
-create_prompt_string() {
-  (
-    # Terminal Title => \e]0;\h_\u@\w\a
-    ps1_title='\e]0;\h_\u@\w\a'
-
-    # Current Root => ${debian_chroot:+($debian_chroot)}
-    ps1_root='${debian_chroot:+($debian_chroot)}'
-
-    # User Part => [ \u ]
-    # User Part (Colored)
-    # => [ \[\e[1;32m\]\u\[\e[0m\] ]
-    ps1_user='\[\e[1;32m\]\u\[\e[0m\]'
-
-    # Location Part => \w
-    # Location Part (Colored)
-    # => \[\e[33m\]\w\[\e[0m\]
-    ps1_location='\[\e[1;35m\]\w\[\e[0m\]'
-
-    # Last Status Part => $?
-    # Last Status Part (Colored)
-    # => $(lst_st=$? && [ "$lst_st" == 0 ] && echo "\[\e[92m\]" || echo "\[\e[31m\]"; exit $lst_st)$?\[\e[0m\]
-    ps1_status="$(printf '%s' \
-      '$(lst_st=$? && ' \
-      'if [ "$lst_st" -eq "0" ];' \
-      'then echo "\[\e[92m\]";' \
-      'else echo "\[\e[31m\]";' \
-      'fi;' \
-      'exit $lst_st)' \
-      '$?\[\e[0m\]'
-    )"
-
-    # Dollar Part => \$
-    # Dollar Part (Colored)
-    # => \[\e[1;95m\]\$\[\e[0m\]
-    ps1_dollar='\[\e[93m\]\$\[\e[0m\]'
-
-    echo "${ps1_title}${ps1_root}[ ${ps1_user} ] ${ps1_location}\n${ps1_status} ${ps1_dollar} "
-  )
-}
-export PS1="$(create_prompt_string)"
-
-stty stop undef
-
-load_with_filecheck  "$HOME/.bash_aliases"
-
-if [ -n "$(command -v gh)" ]; then
-  eval "$(gh completion -s bash)"
-fi
+bash_profile_load_with_filecheck  "$HOME/.bashrc"

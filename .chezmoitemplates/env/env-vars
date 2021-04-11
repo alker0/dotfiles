@@ -15,34 +15,40 @@
   (dict "name" "AWS_CONFIG_FILE" "value" "%s/aws/config" "config" true)
   (dict "name" "AWS_SHARED_CREDENTIALS_FILE" "value" "%s/aws/credentials" "config" true)
   (dict "name" "AZURE_CONFIG_DIR" "value" "%s/azure" "config" true)
+  (dict "name" "HISTSIZE" "value" "1000" )
+  (dict "name" "HISTFILESIZE" "value" "3000" )
 }}
 
 {{- $config_dir := get . "config-dir" }}
 {{- $data_dir := get . "data-dir" }}
 {{- if get . "shell" | eq "bash" }}
-{{-   range $env_var_list -}}
-export {{ get . "name" }}=
-{{-     if get . "config" -}}
-          "{{ printf (get . "value") $config_dir }}"
-{{-     else if get . "data" -}}
-          "{{ printf (get . "value") $data_dir }}"
-{{-     else if get . "value" | contains " " -}}
-          '{{ get . "value" }}'
-{{-     else -}}
-{{        get . "value" }}
-{{-     end }}
+{{-   range $index, $env_var := $env_var_list }}
+{{-     if gt $index 0 }}
 {{-     "\n" }}
+{{-     end -}}
+export {{ get $env_var "name" }}=
+{{-     if get $env_var "config" -}}
+          "{{ printf (get $env_var "value") $config_dir }}"
+{{-     else if get $env_var "data" -}}
+          "{{ printf (get $env_var "value") $data_dir }}"
+{{-     else if get $env_var "value" | contains " " -}}
+          '{{ get $env_var "value" }}'
+{{-     else -}}
+{{-       get $env_var "value" }}
+{{-     end }}
 {{-   end }}
 {{- else if get . "shell" | eq "elvish" }}
-{{-   range $env_var_list -}}{{- "  " -}}
-set-env {{ get . "name" }}{{- " " -}}
-{{-     if get . "config" -}}
-          ${{ $config_dir }}'{{ printf (get . "value") "" }}'
-{{-     else if get . "data" -}}
-          ${{ $data_dir }}'{{ printf (get . "value") "" }}'
-{{-     else -}}
-          '{{ get . "value" }}'
-{{-     end }}
+{{-   range $index, $env_var := $env_var_list }}
+{{-     if gt $index 0 }}
 {{-     "\n" }}
+{{-     end }}{{- "  " -}}
+set-env {{ get $env_var "name" }}{{- " " -}}
+{{-     if get $env_var "config" -}}
+          ${{ $config_dir }}'{{ printf (get $env_var "value") "" }}'
+{{-     else if get . "data" -}}
+          ${{ $data_dir }}'{{ printf (get $env_var "value") "" }}'
+{{-     else -}}
+          '{{ get $env_var "value" }}'
+{{-     end }}
 {{-   end }}
 {{- end -}}

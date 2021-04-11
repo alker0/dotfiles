@@ -183,7 +183,7 @@ set viminfo='100,<50,s10,h,n~/.vim/.viminfo
 
 " ---- terminal ----
 if &shell =~# '\v.*/(|[bd]a|[ackz]|tc|fi)sh'
-  let &shell.=' --login'
+  let &shell.=' -i'
 endif
 
 " ---- key mapping ----
