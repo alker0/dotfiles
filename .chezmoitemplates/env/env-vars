@@ -41,7 +41,7 @@ export {{ get $env_var "name" }}=
 {{-   range $index, $env_var := $env_var_list }}
 {{-     if gt $index 0 }}
 {{-     "\n" }}
-{{-     end }}{{- "  " -}}
+{{-     end }}{{- "    " -}}
 set-env {{ get $env_var "name" }}{{- " " -}}
 {{-     if get $env_var "config" -}}
           ${{ $config_dir }}'{{ printf (get $env_var "value") "" }}'

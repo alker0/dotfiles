@@ -12,21 +12,21 @@
     )
 }}
 {{- else if . | eq "elvish" }}
-{
+  {
 {{-   $config_dir := "config-dir" }}
 {{-   $data_dir := "data-dir" }}
 {{-   "\n" -}}{{- "  " -}}
-  var {{ $config_dir }} {{ $data_dir }}
-  if (has-env XDG_CONFIG_HOME) {
-    set up:{{ $config_dir }} = (get-env XDG_CONFIG_HOME)
-  } else {
-    set up:{{ $config_dir }} = {{ joinPath "(get-env HOME)'" ".config'" }}
-  }
-  if (has-env XDG_DATA_HOME) {
-    set up:{{ $data_dir }} = (get-env XDG_DATA_HOME)
-  } else {
-    set up:{{ $data_dir }} = {{ joinPath "(get-env HOME)'" ".local" "share'" }}
-  }
+    var {{ $config_dir }} {{ $data_dir }}
+    if (has-env XDG_CONFIG_HOME) {
+      set up:{{ $config_dir }} = (get-env XDG_CONFIG_HOME)
+    } else {
+      set up:{{ $config_dir }} = {{ joinPath "(get-env HOME)'" ".config'" }}
+    }
+    if (has-env XDG_DATA_HOME) {
+      set up:{{ $data_dir }} = (get-env XDG_DATA_HOME)
+    } else {
+      set up:{{ $data_dir }} = {{ joinPath "(get-env HOME)'" ".local" "share'" }}
+    }
 {{-   "\n" }}
 {{-   template "env/env-vars" (dict
       "shell" "elvish"
@@ -34,5 +34,5 @@
       "data-dir" $data_dir
     )
 }}
-}
+  }
 {{- end -}}

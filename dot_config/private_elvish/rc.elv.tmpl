@@ -1,10 +1,12 @@
-{
+if (not (has-env ELVISH_RC_LOADED)) {
   var ja-lang = 'ja_JP.utf8'
   if (has-value [(locale -a)] $ja-lang) {
     set-env LANG $ja-lang
   } else {
     set-env LANG C
   }
+
+  {{ template "env/env" "elvish" }}
 }
 
 fn ns-list [@args]{ keys $@args | to-lines | sort }
@@ -60,8 +62,6 @@ fn bash-env [@arg-lines]{
     } $maps
   }
 }
-
-{{ template "env/env" "elvish" }}
 
 if (not (has-external 'test')) {
   edit:add-var test~ [@args]{ (external '[') @args ']' }
@@ -179,3 +179,5 @@ edit:navigation:binding[L] = $edit:navigation:right~
 # edit:lastcmd:binding
 # edit:minibuf:binding
 # pprint $edit:<mode>:binding
+
+set-env ELVISH_RC_LOADED 1
