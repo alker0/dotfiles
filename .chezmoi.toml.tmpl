@@ -1,15 +1,22 @@
 [cd]
   args = ["--login"]
 
-{{- $is_alpine := ((index .chezmoi "osRelease" | default (dict "id" "")).id | eq "alpine") }}
+{{- $is_alpine := (index .chezmoi "osRelease" | default (dict "id" "")).id | eq "alpine" }}
 
 {{- $shell_list := list }}
 {{- $valid_shell_list := list "bash" "zsh" "dash" "ash" "ksh" "csh" "tcsh" "fish" "elvish" }}
-{{- $default_shell := (env "SHELL" | base) }}
-{{- $shell_list_prompt := (printf "A list of all shell you will use (e.g. 'bash:zsh', default: %s)" $default_shell) }}
+{{- $default_shell_text := "" }}
+{{- $printf_format := "%s%s" }}
+{{- range $valid_shell := $valid_shell_list }}
+{{-   if lookPath $valid_shell }}
+{{-     $default_shell_text = printf $printf_format $default_shell_text $valid_shell }}
+{{-     $printf_format = "%s:%s" }}
+{{-   end }}
+{{- end}}
+{{- $shell_list_prompt := printf "A list of all shell you will use (e.g. 'bash:zsh', default: %s)" $default_shell_text }}
 {{- range $shell_list_elm := (regexSplit
     "\\s*:\\s*"
-    (promptString $shell_list_prompt | default $default_shell)
+    (promptString $shell_list_prompt | default $default_shell_text)
     -1)
 }}
   {{- $shell_list = $valid_shell_list
