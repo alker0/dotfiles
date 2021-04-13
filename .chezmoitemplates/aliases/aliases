@@ -6,7 +6,7 @@
   $aliases_list := list
     (dict "name" "ds" "command" "du -sh")
     (dict
-      "depends-list" (list
+      "depends_list" (list
         (dict
           "depends" "pwsh.exe"
           "aliases" (list
@@ -102,7 +102,7 @@
 
 {{- if . | eq "bash" }}
 {{-   range $aliases_list }}
-{{-     $depends_list := get . "depends-list"
+{{-     $depends_list := get . "depends_list"
       | default (list (hasKey . "depends" | ternary . ""))
       | compact
 }}
@@ -135,7 +135,7 @@ fi
 {{-   end }}
 {{- else if . | eq "elvish" }}
 {{-   range $aliases_list }}
-{{-     $depends_list := get . "depends-list"
+{{-     $depends_list := get . "depends_list"
         | default (hasKey . "depends"
           | ternary . ""
           | list)
