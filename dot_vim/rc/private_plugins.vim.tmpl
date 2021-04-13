@@ -21,9 +21,8 @@ call dein#begin(s:dein_dir, expand('<sfile>'))
 
 let s:dein_config_dir = g:vim_config_dir . '/dein'
 
-let s:opt_dir = g:vim_config_dir . '/pack/local/opt'
-{{- if index .vim "chezmoi_path" }}
-call dein#add(s:opt_dir . '/chezmoi', #{
+{{- with index .vim "chezmoi_path" }}
+call dein#add(expand('{{ . }}'), #{
   \   lazy: 0,
   \   frozen: 1,
   \ })
