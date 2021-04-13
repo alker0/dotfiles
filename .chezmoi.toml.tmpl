@@ -73,12 +73,16 @@
   default_merge = "{{ $default_merge }}"
   gpg_sign = {{ $default_use_gpg }}
 {{- if $default_use_gpg }}
-  signingkey = ""
+  signingkey = "{{- if env "BW_SESSION" -}}
+  {{- (bitwardenFields "item" "GitHub").default_signing_key_id.value -}}
+  {{- end -}}"
 {{- end }}
 
 [data.vim]
   chezmoi_path = ""
-  dein_token = ""
+  dein_token = "{{- if env "BW_SESSION" -}}
+  {{- (bitwardenFields "item" "GitHub").dein_vim_token.value -}}
+  {{- end -}}"
 
 [data.additional]
   aliases = ""
