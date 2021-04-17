@@ -1,4 +1,4 @@
-if (not (has-env ELVISH_RC_LOADED)) {
+if (not (has-env SHELL_RC_ENV_LOADED)) {
   var ja-lang = 'ja_JP.utf8'
   if (has-value [(locale -a)] $ja-lang) {
     set-env LANG $ja-lang
@@ -179,5 +179,3 @@ edit:navigation:binding[L] = $edit:navigation:right~
 # edit:lastcmd:binding
 # edit:minibuf:binding
 # pprint $edit:<mode>:binding
-
-set-env ELVISH_RC_LOADED 1

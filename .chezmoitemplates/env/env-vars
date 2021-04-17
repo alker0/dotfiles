@@ -17,6 +17,7 @@
   (dict "name" "AZURE_CONFIG_DIR" "value" "%s/azure" "config" true)
   (dict "name" "HISTSIZE" "value" "1000" )
   (dict "name" "HISTFILESIZE" "value" "3000" )
+  (dict "name" "SHELL_RC_ENV_LOADED" "value" "1" )
 }}
 
 {{- $config_dir := get . "config-dir" }}
