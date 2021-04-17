@@ -20,7 +20,7 @@ alias {{ get . "name" }}=
 {{-   end -}}
 
 {{-   if $is_shutdown -}}
-{{-     " & exit" }}
+{{-     " & sleep 0.1 ; exit" }}
 {{-   end -}}
 '
 {{- else -}}
