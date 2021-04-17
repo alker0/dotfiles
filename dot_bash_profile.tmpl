@@ -15,10 +15,10 @@ bash_profile_load_with_filecheck() {
 }
 
 case $- in
-  *i*) ;;
+  *i*)
+    bash_profile_load_with_filecheck  "$HOME/.bashrc"
+    ;;
   *)
-    load_with_filecheck "$HOME/.bash_aliases"
-    return ;;
+    bash_profile_load_with_filecheck "$HOME/.bash_aliases"
+    ;;
 esac
-
-bash_profile_load_with_filecheck  "$HOME/.bashrc"
