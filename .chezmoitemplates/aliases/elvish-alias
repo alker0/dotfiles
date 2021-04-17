@@ -2,6 +2,7 @@
 { cd (chezmoi source-path) }
 {{- else }}
 {{-   $depends := get . "depends" }}
+{{-   $is_shutdown := get . "note" | eq "shutdown" }}
 
 {{-   "[@arg]{ " }}
 
@@ -18,6 +19,10 @@
 {{-     else }}
 {{-       printf $command }}
 {{-     end }}
+
+{{-     if $is_shutdown -}}
+{{-       " & ; try { sleep 100ms } finally { exit } ; nop" }}
+{{-     end -}}
 {{-   end }}
 
 {{-   " $@arg }" }}
