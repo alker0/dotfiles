@@ -82,6 +82,11 @@
         (dict "name" "xl" "command" "%s -la")
       )
     )
+    (dict "depends" "dust"
+      "aliases" (list
+        (dict "name" "ds" "command" "%s")
+      )
+    )
 }}
 
 {{- if . | eq "bash" }}
