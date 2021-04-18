@@ -6,7 +6,7 @@ alias {{ get . "name" }}=
 '
 {{- $is_shutdown := get . "note" | eq "shutdown" }}
 {{-   if $is_shutdown -}}
-{{-     "history -a && " }}
+{{-     "history -a && exec " }}
 {{-   end }}
 
 {{-   range $index, $command := get . "commands"
@@ -17,10 +17,6 @@ alias {{ get . "name" }}=
 {{-       " && " }}
 {{-     end }}
 {{-     printf $command $depends }}
-{{-   end -}}
-
-{{-   if $is_shutdown -}}
-{{-     " & sleep 0.1 ; exit" }}
 {{-   end -}}
 '
 {{- else -}}

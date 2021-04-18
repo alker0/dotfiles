@@ -6,6 +6,10 @@
 
 {{-   "[@arg]{ " }}
 
+{{-   if $is_shutdown -}}
+{{-     "exec " }}
+{{-   end }}
+
 {{-   range $index, $command := get . "commands"
     | default (get . "command" | list)
     | compact
@@ -20,9 +24,6 @@
 {{-       printf $command }}
 {{-     end }}
 
-{{-     if $is_shutdown -}}
-{{-       " & ; try { sleep 100ms } finally { exit } ; nop" }}
-{{-     end -}}
 {{-   end }}
 
 {{-   " $@arg }" }}

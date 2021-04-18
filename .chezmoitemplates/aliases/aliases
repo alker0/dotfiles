@@ -5,42 +5,26 @@
 {{-
   $aliases_list := list
     (dict "name" "ds" "command" "du -sh")
-    (dict
-      "depends_list" (list
+    (dict "depends" "pwsh.exe"
+      "aliases" (list
+        (dict "name" "pwshx" "command" "%s -Command")
+      )
+    )
+    (dict "depends" "shutdown.exe"
+      "aliases" (list
         (dict
-          "depends" "pwsh.exe"
-          "aliases" (list
-            (dict "name" "pwshx" "command" "%s -Command")
-            (dict
-              "name" "poff"
-              "command" "%s -Command Stop-Computer"
-              "note" "shutdown"
-            )
-            (dict
-              "name" "rbt"
-              "command" "%s -Command Restart-Computer"
-              "note" "shutdown"
-            )
-          )
+          "name" "poff"
+          "command" "%s -s -t 0"
+          "note" "shutdown"
         )
-        (dict "depends" "shutdown.exe"
-          "aliases" (list
-            (dict
-              "name" "poff"
-              "command" "%s -s -t 0"
-              "note" "shutdown"
-            )
-            (dict
-              "name" "rbt"
-              "command" "%s -r -t 0"
-              "note" "shutdown"
-            )
-          )
+        (dict
+          "name" "rbt"
+          "command" "%s -r -t 0"
+          "note" "shutdown"
         )
       )
     )
-    (dict
-      "depends" "git"
+    (dict "depends" "git"
       "aliases" (list
         (dict "name" "g" "command" "%s")
       )
