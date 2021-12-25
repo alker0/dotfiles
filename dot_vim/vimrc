@@ -82,7 +82,7 @@ set ttimeout
 set timeoutlen=500
 set ttimeoutlen=100
 
-" Include multi byte caractors to format target
+" Include multi byte characters to format target
 set formatoptions+=mM
 
 augroup vimrc
@@ -100,11 +100,11 @@ set showmatch
 
 set hlsearch
 
-" Show invisible charactor
+" Show invisible character
 set list
 
 " Trail => Space on line end
-" Extends => Show when there are on over right side caractors
+" Extends => Show when there are on over right side characters
 set listchars=tab:>-,extends:<,trail:-,eol:<
 
 set showbreak=+++\ 
