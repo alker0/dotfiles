@@ -128,6 +128,13 @@ augroup vimrc
   autocmd SourcePre * ++once filetype plugin on | syntax on
 augroup END
 
+" ---- spell check ----
+set spell
+
+set spelllang=en,cjk
+
+set spellfile=~/.vim/spell/en.utf-8.add
+
 " ---- bottom info ----
 " Cursor info
 set ruler
