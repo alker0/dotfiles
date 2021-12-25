@@ -65,6 +65,11 @@
 {{- $git_name := (promptString $git_name_prompt | default $git_name_default) }}
 {{- $default_use_gpg := not (empty (lookPath "gpg")) }}
 
+[data.bash]
+histignore = [
+  'xl',
+]
+
 [data.git]
   editor = "{{ $git_editor }}"
   email = "{{ $git_email }}"

@@ -3,9 +3,10 @@ case $- in
   *) return ;;
 esac
 
-HISTFILE="${HISTFILE:-$HOME/.bash_history}"
-HISTCONTROL=ignoreboth
-HISTIGNORE=echo:ls:la:ll:[fb]g:exit:pwd:clear:reset
+export HISTFILE="${HISTFILE:-$HOME/.bash_history}"
+export HISTCONTROL=ignoreboth
+export HISTIGNORE=echo:ls:la:ll:[fb]g:exit:pwd:clear:reset
+{{- range $ignore := .bash.histignore }}:{{ $ignore }}{{ end }}
 
 alias la='ls -A'
 alias ll='ls -Alh'
