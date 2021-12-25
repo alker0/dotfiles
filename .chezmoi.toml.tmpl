@@ -66,6 +66,8 @@
 {{- $default_use_gpg := not (empty (lookPath "gpg")) }}
 
 [data.bash]
+aliases = [
+]
 histignore = [
   'xl',
 ]
@@ -88,7 +90,4 @@ histignore = [
   dein_token = "{{- if env "BW_SESSION" -}}
   {{- (bitwardenFields "item" "GitHub").dein_vim_token.value -}}
   {{- end -}}"
-
-[data.additional]
-  aliases = ""
 

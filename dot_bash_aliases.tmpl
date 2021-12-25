@@ -58,5 +58,8 @@ if [ -n "$(command -v docker)" ]; then
   }
 fi
 
-{{ .additional.aliases -}}
+{{ range $alias := .bash.aliases }}
+alias {{ get $alias "name" }}=
+{{-      get $alias "command" }}
+{{- end -}}
 
