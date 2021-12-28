@@ -17,15 +17,32 @@ if 1
   let g:loaded_2html_plugin = 1
 
   " ---- ENV ----
-  let g:local_data_dir = empty($XDG_DATA_HOME) ? expand('$HOME/.local/share') : $XDG_DATA_HOME
-  let g:local_config_dir = empty($XDG_CONFIG_HOME) ? expand('$HOME/.config') : $XDG_CONFIG_HOME
+  let g:local_data_dir = $XDG_DATA_HOME
+  if empty($XDG_DATA_HOME)
+    let g:local_data_dir = expand('~/.local/share')
+  endif
 
-  let g:vim_config_dir = expand('$HOME/.vim')
+  let g:local_config_dir = $XDG_CONFIG_HOME
+  if empty($XDG_CONFIG_HOME)
+    let g:local_config_dir = expand('~/.config')
+  endif
+
+  " let g:local_tmp_dir = expand('~/tmp')
+
+  let g:vim_config_dir = expand('~/.vim')
+
+
+  if !has('unix')
+    let g:local_data_dir = substitute(g:local_data_dir, '\\', '/', 'g')
+    let g:local_config_dir = substitute(g:local_config_dir, '\\', '/', 'g')
+    " let g:local_tmp_dir = substitute($TEMP, '\\', '/', 'g')
+    let g:vim_config_dir = substitute(g:vim_config_dir, '\\', '/', 'g')
+  endif
 
   " ---- manage plugins ----
   let s:rc_plugin_file = g:vim_config_dir . '/rc/plugins.vim'
   if filereadable(s:rc_plugin_file)
-    execute 'source' fnameescape(s:rc_plugin_file)
+    execute 'source' s:rc_plugin_file
   else
     echo s:rc_plugin_file . ' is not readable'
   endif
@@ -186,6 +203,11 @@ if exists('+statusline')
 endif
 
 " ---- side effect files ----
+set directory=~/tmp
+if !has('unix')
+  set directory=$TEMP
+endif
+
 set nobackup
 
 set noundofile
