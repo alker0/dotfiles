@@ -4,7 +4,22 @@ else
   export LANG=C
 fi
 
-{{ template "env/env" "bash" }}
+{{  range .env.list }}
+{{-   if hasKey . "expands"}}
+{{-     $expands := (list) }}
+{{-     range .expands }}
+{{-       if eq . "config" }}
+{{-         $expands = append $expands "${XDG_CONFIG_HOME:-$HOME/.config}"  }}
+{{-       else if eq . "data" }}
+{{-         $expands = append $expands "${XDG_CONFIG_HOME:-$HOME/.local/share}" }}
+{{-       end }}
+{{-     end }}
+{{-     printf "export %s" .name }}={{ template "array/printf" (dict "format" .format "expands" $expands "quote" "double") }}
+{{    else }}
+{{-     printf "export %s" .name }}={{ template "array/printf" (dict "format" .format "quote" (contains " " .format | ternary "single" "")) }}
+{{    end }}
+{{- else -}}
+{{- end -}}
 
 export GPG_TTY="$(tty)"
 

@@ -1,0 +1,38 @@
+{{- if not (hasKey . "format") }}
+{{-   fail "`.format` must exist" }}
+{{- else if and (hasKey . "expands") (not (kindIs "slice" (get . "expands"))) }}
+{{-   fail "`.expands` must be list" }}
+{{- end }}
+
+{{- if eq (get . "quote") "single" }}'
+{{- else if eq (get . "quote") "double" }}"
+{{- end }}
+
+{{- if not (hasKey . "expands") }}
+{{-   printf .format }}
+{{- else if eq (len .expands) 0 }}
+{{-   printf .format }}
+{{- else if eq (len .expands) 1 }}
+{{-   printf .format (index .expands 0) }}
+{{- else if eq (len .expands) 2 }}
+{{-   printf .format (index .expands 0) (index .expands 1) }}
+{{- else if eq (len .expands) 3 }}
+{{-   printf .format (index .expands 0) (index .expands 1) (index .expands 2) }}
+{{- else if eq (len .expands) 4 }}
+{{-   printf .format (index .expands 0) (index .expands 1) (index .expands 2) (index .expands 3) }}
+{{- else if eq (len .expands) 5 }}
+{{-   printf .format (index .expands 0) (index .expands 1) (index .expands 2) (index .expands 3) (index .expands 4) }}
+{{- else if eq (len .expands) 6 }}
+{{-   printf .format (index .expands 0) (index .expands 1) (index .expands 2) (index .expands 3) (index .expands 4) (index .expands 5) }}
+{{- else if eq (len .expands) 7 }}
+{{-   printf .format (index .expands 0) (index .expands 1) (index .expands 2) (index .expands 3) (index .expands 4) (index .expands 5) (index .expands 6) }}
+{{- else if eq (len .expands) 8 }}
+{{-   printf .format (index .expands 0) (index .expands 1) (index .expands 2) (index .expands 3) (index .expands 4) (index .expands 5) (index .expands 6) (index .expands 7) }}
+{{- else if eq (len .expands) 9 }}
+{{-   printf .format (index .expands 0) (index .expands 1) (index .expands 2) (index .expands 3) (index .expands 4) (index .expands 5) (index .expands 6) (index .expands 7) (index .expands 8) }}
+{{- end }}
+
+{{- if eq (get . "quote") "single" }}'
+{{- else if eq (get . "quote") "double" }}"
+{{- end -}}
+
