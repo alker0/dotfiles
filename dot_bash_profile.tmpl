@@ -23,8 +23,6 @@ fi
 {{- else -}}
 {{- end -}}
 
-export GPG_TTY="$(tty)"
-
 bash_profile_load_with_filecheck() {
   if [ -f "$1" ]; then
     . "$1"
