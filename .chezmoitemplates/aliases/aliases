@@ -84,7 +84,7 @@
     )
     (dict "depends" "dust"
       "aliases" (list
-        (dict "name" "ds" "command" "%s")
+        (dict "name" "ds" "command" "%s -d 1")
       )
     )
 }}
