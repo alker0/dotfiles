@@ -13,7 +13,7 @@ EOP
       )"
 
       env \
-        | grep -E -v "^(${fenv_excludes})=" \
+        | command grep -E -v "^(${fenv_excludes})=" \
         | sort \
         | sed -r "${fenv_sed_pattern}"
     else
