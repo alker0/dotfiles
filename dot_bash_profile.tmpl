@@ -31,6 +31,73 @@ bash_profile_load_with_filecheck() {
 
 bash_profile_load_with_filecheck "$HOME/.nix-profile/etc/profile.d/nix.sh"
 
+read_link_posix() {
+  (
+    ls_dl_result="$(command ls -dl "$1")"
+    case "$ls_dl_result" in
+    *-\>\ */*)
+      followed_path="${ls_dl_result##*-> }"
+      cd "${followed_path%/*}"
+      ref_link_posix "${followed_path##*/}"
+      ;;
+    *-\>\ *)
+      ref_link_posix "${ls_dl_result##*-> }"
+      ;;
+    #'') ;;
+    *)
+      if [ -n "${1##/*}" ]; then
+        echo "$PWD/$1"
+      else
+        echo "$1"
+      fi
+      ;;
+    esac
+  )
+}
+
+if [ -n "$(command -v java)" ] && [ -z "${JAVA_HOME%%${WSLENV:+/mnt/[a-z]/*}}" ]; then
+  export JAVA_HOME="$(
+    cache_dir="${XDG_CACHE_HOME:-$HOME/.cache}/shell-config"
+    java_home_cache="$cache_dir/java-home"
+    if [ -f "$java_home_cache" ]; then
+      head -n 1 $java_home_cache && exit
+    fi
+
+    java_bin_path="$(sh -c 'command -v java')"
+    [ -n "$java_bin_path" ] || exit 0
+
+    followed_java_bin_path="$(ref_link_posix "$java_bin_path")"
+    [ -x "$followed_java_bin_path" ] || exit 0
+
+    followed_java_home_dir="${followed_java_bin_path%/bin/java}"
+    [ "$followed_java_bin_path" != "$followed_java_home_dir" ] || exit 0
+
+    if [ ! -d "$cache_dir" ]; then
+      mkdir -p "$cache_dir"
+    fi
+    echo "$followed_java_home_dir" >"$java_home_cache"
+    echo "$followed_java_home_dir"
+  )"
+  if [ ! -d "$JAVA_HOME" ]; then
+    unset JAVA_HOME
+  fi
+fi
+
+for sdk_tools_path in 'cmdline-tools/tools/bin/sdkmanager' 'platform-tools/adb'; do
+  if [ -x "$ANDROID_SDK_ROOT/$sdk_tools_path" ]; then
+    export PATH="$ANDROID_SDK_ROOT/${sdk_tools_path%/*}:$PATH"
+  fi
+done
+
+if [ -n "$(command -v flutter)" ]; then
+  if [ -n "$WSLENV" ]; then
+    export ADB_SERVER_SOCKET="tcp:$(command grep 'nameserver' /etc/resolv.conf | cut -d ' ' -f 2):5037"
+    if [ ! -x "$CHROME_EXECUTABLE" ]; then
+      unset CHROME_EXECUTABLE
+    fi
+  fi
+fi
+
 case $- in
   *i*)
     bash_profile_load_with_filecheck  "$HOME/.bashrc"
