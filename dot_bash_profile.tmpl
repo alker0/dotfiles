@@ -29,6 +29,8 @@ bash_profile_load_with_filecheck() {
   fi
 }
 
+bash_profile_load_with_filecheck "$HOME/.nix-profile/etc/profile.d/nix.sh"
+
 case $- in
   *i*)
     bash_profile_load_with_filecheck  "$HOME/.bashrc"
