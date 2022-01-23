@@ -32,20 +32,66 @@ unqh() {
       reverse_command() {
         nl -n rz | sort -nr | cut -f 2-
       } \
-      && cat "${HISTFILE:=${HOME}/.bash_history}" \
-        | reverse_command \
-        | awk '!x[$0]++' \
-        | reverse_command > /tmp/history \
-        && cat /tmp/history > "$HISTFILE"
+        && {
+          fixed_history_path="${TMPDIR:-/tmp/bash_uniq_history}"
+          cat "${HISTFILE:=${HOME}/.bash_history}" \
+            | reverse_command \
+            | awk '!x[$0]++' \
+            | reverse_command > "$fixed_history_path" \
+            && {
+              cat "$fixed_history_path" > "$HISTFILE"
+              rm "$fixed_history_path"
+            }
+        }
     ) \
     && history -c \
     && history -r
 }
 
+if [ -n "$(command -v dpkg)" ] && [ -n "$(command -v apt-cache)" ]; then
+  aptleaf() {
+    dpkg -l \
+      | command grep '^ii' \
+      | tr -s ' ' \
+      | cut -d ' ' -f 2 \
+      | xargs -n5 -P$(nproc) sh -c "$(cat <<'EOF'
+for x; do
+  if [ -z "$(apt-cache rdepends --installed "$x" | tail -n +3)" ]; then
+    echo "$x"
+  else
+    :
+  fi
+done
+EOF
+)" _
+  }
+fi
+
 if [ -n "$(command -v chezmoi)" ]; then
-  czxps() {
+  cmxps() {
     chezmoi execute-template --init --promptString=$@
   }
+  cmspc() {
+    (
+      source_dir="$(chezmoi source-path)"
+      find "${source_dir:?}" -type f ! -path '*/.git/*' \
+        | command grep -E "^$source_dir/"'([^/]+/)*(\.chezmoi[.deistv]|(create|modify|remove|run)_[^/]+$)' --color=none
+    )
+  }
+
+  if [ -n "$(command -v fzf)" ]; then
+    cmes() {
+      (
+        source_dir_prefix="$(chezmoi source-path)/"
+        selected="$(cmspc \
+          | command grep -v '/\.keep$' \
+          | sed -e "s%^$source_dir_prefix%%" \
+          | fzf)"
+        [ -n "$selected" ] || return
+        "${EDITOR:-vi}" "$source_dir_prefix$selected"
+      )
+    }
+  fi
 fi
 
 if [ -n "$(command -v docker)" ]; then
