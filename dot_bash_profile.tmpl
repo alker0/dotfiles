@@ -8,7 +8,9 @@ fi
 {{-   if hasKey . "expands"}}
 {{-     $expands := (list) }}
 {{-     range .expands }}
-{{-       if eq . "config" }}
+{{-       if eq . "home" }}
+{{-         $expands = append $expands "${HOME}" }}
+{{-       else if eq . "config" }}
 {{-         $expands = append $expands "${XDG_CONFIG_HOME:-$HOME/.config}"  }}
 {{-       else if eq . "data" }}
 {{-         $expands = append $expands "${XDG_CONFIG_HOME:-$HOME/.local/share}" }}

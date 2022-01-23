@@ -7,19 +7,21 @@ if (not (has-env SHELL_RC_ENV_LOADED)) {
   }
 
   {
+{{- $home_dir := "home-dir" }}
 {{- $config_dir := "config-dir" }}
 {{- $data_dir := "data-dir" }}
-{{- "\n" -}}{{- "  " -}}
-    var {{ $config_dir }} {{ $data_dir }}
+{{- "\n" -}}{{- "    " -}}
+    var {{ $home_dir }} {{ $config_dir }} {{ $data_dir }}
+    set {{ $home_dir }} = (get-env HOME)
     if (has-env XDG_CONFIG_HOME) {
       set up:{{ $config_dir }} = (get-env XDG_CONFIG_HOME)
     } else {
-      set up:{{ $config_dir }} = (get-env HOME)'/.config'
+      set up:{{ $config_dir }} = ${{ $home_dir }}'/.config'
     }
     if (has-env XDG_DATA_HOME) {
       set up:{{ $data_dir }} = (get-env XDG_DATA_HOME)
     } else {
-      set up:{{ $data_dir }} = (get-env HOME)'/.local/share'
+      set up:{{ $data_dir }} = ${{ $home_dir }}'/.local/share'
     }
 {{- "\n" }}
 {{  range .env.list }}
@@ -27,7 +29,9 @@ if (not (has-env SHELL_RC_ENV_LOADED)) {
 {{-     $format := mustRegexReplaceAll "(%s)?([0-9a-zA-Z/\\-_@.]+)" .format "${1}'${2}'" }}
 {{-     $expands := (list) }}
 {{-     range .expands }}
-{{-       if eq . "config" }}
+{{-       if eq . "home" }}
+{{-         $expands = append $expands (printf "$%s" $home_dir) }}
+{{-       else if eq . "config" }}
 {{-         $expands = append $expands (printf "$%s" $config_dir) }}
 {{-       else if eq . "data" }}
 {{-         $expands = append $expands (printf "$%s" $data_dir) }}
