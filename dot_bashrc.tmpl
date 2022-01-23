@@ -118,6 +118,45 @@ if [ -f "$HOME/.bash_aliases" ]; then
   . "$HOME/.bash_aliases"
 fi
 
+if [ -n "$(command -v chezmoi)" ]; then
+  eval "$(chezmoi completion bash)"
+fi
+
 if [ -n "$(command -v gh)" ]; then
   eval "$(gh completion -s bash)"
 fi
+
+eval "$(
+  completions_dir="$HOME/.nix-profile/share/bash-completion/completions"
+  if [ -d "$completions_dir" ]; then
+    find $completions_dir -maxdepth 1 ! -type d ! -name 'chezmoi*' ! -name 'gh*' -exec cat {} +
+  fi
+)"
+
+eval "$(
+  tmp_dir="${TEMPDIR:-/tmp}"
+  [ -d "$tmp_dir" ] || exit
+  dummy_dir="$tmp_dir/bash_alias_completion"
+  if [ ! -d "$dummy_dir" ]; then
+    mkdir "$dummy_dir" || exit
+  fi
+  echo "PATH='$dummy_dir:$PATH'"
+  {
+    printf '%s\n' \
+      'git g' \
+      'chezmoi cm' \
+      'exa xl' \
+      'dust ds'
+  } | while read org aliased; do
+    comp_line="$(complete -p "$org" 2>/dev/null)"
+    dummy_script="$dummy_dir/$aliased"
+    if [ -n "$comp_line" ]; then
+      touch "$dummy_script"
+      if [ ! -x  "$dummy_script" ]; then
+        chmod a+x "$dummy_script"
+      fi
+      echo "${comp_line% *} $aliased"
+    fi
+  done
+  echo "PATH='$PATH'"
+)"
