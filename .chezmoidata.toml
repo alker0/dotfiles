@@ -1,4 +1,4 @@
-[env]
+[data.env]
 list = [
   { name = 'TZ', format = 'Asia/Tokyo' },
   { name = 'INPUTRC', format = '%s/readline/inputrc', expands = ['config'] },

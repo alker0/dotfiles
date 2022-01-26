@@ -35,4 +35,3 @@
 {{- if eq (get . "quote") "single" }}'
 {{- else if eq (get . "quote") "double" }}"
 {{- end -}}
-

@@ -4,7 +4,7 @@ else
   export LANG=C
 fi
 
-{{  range .env.list }}
+{{  range .data.env.list }}
 {{-   if hasKey . "expands"}}
 {{-     $expands := (list) }}
 {{-     range .expands }}
