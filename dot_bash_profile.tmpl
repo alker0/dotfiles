@@ -92,7 +92,7 @@ if [ -n "$(command -v java)" ] && [ -z "${JAVA_HOME%%${WSLENV:+/mnt/[a-z]/*}}" ]
   fi
 fi
 
-for sdk_tools_path in 'cmdline-tools/tools/bin/sdkmanager' 'platform-tools/adb'; do
+for sdk_tools_path in 'cmdline-tools/latest/bin/sdkmanager' 'platform-tools/adb'; do
   if [ -x "$ANDROID_SDK_ROOT/$sdk_tools_path" ]; then
     export PATH="$ANDROID_SDK_ROOT/${sdk_tools_path%/*}:$PATH"
   fi
