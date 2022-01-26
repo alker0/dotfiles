@@ -62,6 +62,13 @@
 {{- $git_name := (promptString $git_name_prompt | default $git_name_default) }}
 {{- $default_use_gpg := not (empty (lookPath "gpg")) }}
 
+{{- $bw_logged_in := not (empty (env "BW_SESSION")) }}
+{{- if not $bw_logged_in }}
+{{-   if lookPath "bw" }}
+{{-     $bw_logged_in = not (output "bw" "status" | contains "\"unauthenticated\"") }}
+{{-   end }}
+{{- end }}
+
 [data.bash]
 aliases = [
 ]
@@ -77,14 +84,13 @@ histignore = [
   default_merge = "{{ $default_merge }}"
   gpg_sign = {{ $default_use_gpg }}
 {{- if $default_use_gpg }}
-  signingkey = "{{- if env "BW_SESSION" -}}
+  signingkey = "{{- if $bw_logged_in -}}
   {{- (bitwardenFields "item" "GitHub").default_signing_key_id.value -}}
   {{- end -}}"
 {{- end }}
 
 [data.vim]
   chezmoi_path = ""
-  dein_token = "{{- if env "BW_SESSION" -}}
+  dein_token = "{{- if $bw_logged_in -}}
   {{- (bitwardenFields "item" "GitHub").dein_vim_token.value -}}
   {{- end -}}"
-
