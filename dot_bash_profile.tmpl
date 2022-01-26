@@ -23,6 +23,15 @@ fi
 {{- else -}}
 {{- end -}}
 
+if [ -z "$(command -v brew)" ]; then
+  eval "$(
+    linuxbrew_path=/home/linuxbrew/.linuxbrew/bin/brew
+    if [ -f "$linuxbrew_path" ] && [ -x "$linuxbrew_path" ] ; then
+      "$linuxbrew_path" shellenv
+    fi
+  )"
+fi
+
 bash_profile_load_with_filecheck() {
   if [ -f "$1" ]; then
     . "$1"
