@@ -94,6 +94,15 @@ if [ -n "$(command -v chezmoi)" ]; then
   fi
 fi
 
+if [ -n "$(command -v bw)" ]; then
+  bwli() {
+    bw login --raw --method 1 {{ .data.bw.email | squote }}
+  }
+  bwlo() {
+    bw logout
+  }
+fi
+
 if [ -n "$(command -v docker)" ]; then
   # buildx local cache option
   dkbxlc() {
