@@ -1,6 +1,3 @@
-[cd]
-  args = ["--login"]
-
 {{- $is_alpine := (index .chezmoi "osRelease" | default (dict "id" "")).id | eq "alpine" }}
 
 {{- $shell_list := list }}
