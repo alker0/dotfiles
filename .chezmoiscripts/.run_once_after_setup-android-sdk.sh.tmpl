@@ -1,0 +1,45 @@
+#!/bin/env bash
+
+readonly SCRIPT_DIR="$(dirname "$(readlink -f "$0")")"
+readonly SDK_ROOT="${ANDROID_SDK_ROOT:-$HOME/.local/android-sdk}"
+readonly CMD_TOOLS_BIN_DIR="${SDK_ROOT:?}/cmdline-tools/latest/bin"
+readonly SDK_MANAGER="$CMD_TOOLS_BIN_DIR/sdkmanager"
+
+handle_error() {
+  echo "Failed to $2" >&2
+  exit $1
+}
+
+# if [ ! -x "$SDK_MANAGER" ]; then
+#   targets="$(command find "$CMD_TOOLS_BIN_DIR" -type f)"
+#   if [ "$(stat -c '%U' $CMD_TOOLS_BIN_DIR)" == 'root' ]; then
+#     sudo chmod a+x $targets
+#   else
+#     chmod a+x $targets
+#   fi
+# fi
+
+[ -d "$CMD_TOOLS_BIN_DIR" ] || handle_error $? 'move to $SDK_ROOT/cmdline-tools/latest/bin'
+
+export PATH="$CMD_TOOLS_BIN_DIR:$PATH"
+
+readonly SDK_VERSION=30
+readonly BUILD_TOOLS="$(sdkmanager --list | grep "build-tools;${SDK_VERSION}[^ ]*" | cut -d '|' -f 1 | tr -d ' ' | sort -r | head -n 1)"
+
+yes | head -n 16 | {
+  sdkmanager --install \
+    "system-images;android-${SDK_VERSION};google_apis_playstore;x86_64" \
+    "platforms;android-${SDK_VERSION}" \
+    "${BUILD_TOOLS:?}" \
+    "platform-tools" \
+    "cmdline-tools;latest"
+  sdkmanager --licenses
+} || handle_error $? 'install Android SDK'
+
+if [ -n "$(command -v flutter)" ]; then
+  yes | head -n 8 | flutter doctor --android-licenses || handle_error $? 'accept additional Android licenses'
+fi
+
+if [ "$?" -eq 0 ]; then
+  printf "\nCompleted\n\n"
+fi

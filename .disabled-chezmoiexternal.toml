@@ -1,0 +1,13 @@
+{{- $home_dir_prefix := (expandenv "$HOME/") }}
+{{- $android_sdk_root_env := env "ANDROID_SDK_ROOT" }}
+{{- $android_sdk_root := ".local/android-sdk" }}
+{{- if hasPrefix $home_dir_prefix $android_sdk_root_env }}
+{{-   $android_sdk_root := trimPrefix $home_dir_prefix $android_sdk_root_env }}
+{{- end }}
+{{- $android_sdk_url_version := 7583922 }}
+{{- if false }}
+["{{ $android_sdk_root }}/cmdline-tools/latest"]
+  type = 'archive'
+  url = 'https://dl.google.com/android/repository/commandlinetools-linux-{{ $android_sdk_url_version }}_latest.zip'
+  stripComponents = 1
+{{- end }}
