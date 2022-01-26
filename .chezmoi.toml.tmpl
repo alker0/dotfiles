@@ -70,8 +70,6 @@
 {{- end }}
 
 [data.bash]
-aliases = [
-]
 histignore = [
   'xl',
 ]
@@ -90,7 +88,7 @@ histignore = [
 {{- end }}
 
 [data.vim]
-  chezmoi_path = ""
+  chezmoi_plugin_path = ""
   dein_token = "{{- if $bw_logged_in -}}
   {{- (bitwardenFields "item" "GitHub").dein_vim_token.value -}}
   {{- end -}}"
