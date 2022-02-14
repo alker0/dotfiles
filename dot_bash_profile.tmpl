@@ -44,13 +44,18 @@ read_link_posix() {
   (
     ls_dl_result="$(command ls -dl "$1")"
     case "$ls_dl_result" in
-    *-\>\ */*)
+    *-\>\ /*/*)
       followed_path="${ls_dl_result##*-> }"
       cd "${followed_path%/*}"
-      ref_link_posix "${followed_path##*/}"
+      read_link_posix "${followed_path##*/}"
+      ;;
+    *-\>\ */*)
+      followed_path="${1%/*}/${ls_dl_result##*-> }"
+      cd "${followed_path%/*}"
+      read_link_posix "${followed_path##*/}"
       ;;
     *-\>\ *)
-      ref_link_posix "${ls_dl_result##*-> }"
+      read_link_posix "${ls_dl_result##*-> }"
       ;;
     #'') ;;
     *)
@@ -75,7 +80,7 @@ if [ -n "$(command -v java)" ] && [ -z "${JAVA_HOME%%${WSLENV:+/mnt/[a-z]/*}}" ]
     java_bin_path="$(sh -c 'command -v java')"
     [ -n "$java_bin_path" ] || exit 0
 
-    followed_java_bin_path="$(ref_link_posix "$java_bin_path")"
+    followed_java_bin_path="$(read_link_posix "$java_bin_path")"
     [ -x "$followed_java_bin_path" ] || exit 0
 
     followed_java_home_dir="${followed_java_bin_path%/bin/java}"
@@ -87,7 +92,9 @@ if [ -n "$(command -v java)" ] && [ -z "${JAVA_HOME%%${WSLENV:+/mnt/[a-z]/*}}" ]
     echo "$followed_java_home_dir" >"$java_home_cache"
     echo "$followed_java_home_dir"
   )"
-  if [ ! -d "$JAVA_HOME" ]; then
+  if [ -d "$JAVA_HOME" ]; then
+    export PATH="$JAVA_HOME/bin:$PATH"
+  else
     unset JAVA_HOME
   fi
 fi
@@ -106,6 +113,39 @@ if [ -n "$(command -v flutter)" ]; then
     fi
   fi
 fi
+
+if [ -n "$(command -v go)" ]; then
+  export PATH="${GOPATH:-$HOME/go}/bin:$PATH"
+fi
+
+#if [ "$(command -v python)" == "$HOME/.nix-profile/bin/python" ]; then
+#  eval "$(
+#    venv_global="${XDG_DATA_HOME:-$HOME/.local/share}/virtualenv/global"
+#    venv_global_bin="$venv_global/bin" 
+#    venv_global_activate="$venv_global_bin/activate" 
+#    if [ ! -f "$venv_global_activate" ]; then
+#      python -m venv "$venv_global" >&2 || exit $?
+#      "$venv_global_bin/python" -m pip install --quiet --upgrade pip
+#      "$venv_global_bin/pip" install --quiet --upgrade wheel
+#      "$venv_global_bin/pip" install --quiet --upgrade virtualenvwrapper
+#    fi
+#    cat <<EOF
+#. '$venv_global_activate' \
+#  && HOOK_VERBOSE_OPTION='-q' . '$venv_global_bin/virtualenvwrapper.sh' -q
+#EOF
+#  )"
+#
+#  #for np in ${NIX_PROFILES:-$HOME/.nix-profile} ; do
+#  #  export LD_LIBRARY_PATH="$np/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+#  #done
+#  #for np in $(
+#  #  if [ -n "$(command -v nix)" ]; then
+#  #    echo "$(nix env --raw 'nixpkgs#stdenv.cc.cc.lib' 2>/dev/null)"
+#  #  fi
+#  #  ) ${NIX_PROFILES:-$HOME/.nix-profile} ; do
+#  #  export LD_LIBRARY_PATH="$np/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+#  #done
+#fi
 
 case $- in
   *i*)
