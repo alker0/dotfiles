@@ -1,0 +1,78 @@
+#!/bin/sh
+
+'ls' -A1 /tmp | 'grep' -E "^($(printf '|%s' $(cat <<'EOF'
+bash_alias_completion
+chrootenv
+core-js-banners
+dart-code-startup-log-.*
+flutter_tools\..*
+hsperfdata_*
+kotlin-.*
+native-platform
+nix-.*
+npm-.*
+phantomjs
+pyright-.*
+python-languageserver
+tmp.*.pem
+v8-compile-cache
+vim-.*
+xfs-.*
+yarn--.*
+EOF
+)
+))$" | xargs sh -c "$(cat <<'EOF'
+if [ "$#" -ne 0 ]; then
+  rm -rf $(printf ' /tmp/%s' "$@")
+fi
+EOF
+)" _
+
+
+'ls' -A1 /tmp | 'grep' -vE "^($(printf '|%s' $(cat <<'EOF'
+\.X11-unix
+remote-wsl-.*
+graveyard-.*
+fnm_multishells
+vscode-.*
+EOF
+)
+))$" | xargs -L10 --open-tty sh -c "$(cat <<'EOF'
+if [ "$#" -eq 0 ]; then
+  return
+fi
+
+echo "Remove these in /tmp ? $(printf '\n%s' "$@")"
+read -r REPLY
+case "$REPLY" in
+  ''|[yY])
+    rm -r $(printf ' /tmp/%s' "$@")
+    ;;
+  [nN]|[nN]o)
+    return
+    ;;
+  [qQ]|[qQ]uit)
+    exit 255
+    ;;
+esac
+EOF
+)" _
+
+for tmp_name in ipc- git- typescript- distro-env ; do
+  'ls' -A1t /tmp | 'grep' -E "^vscode-${tmp_name}" | tail -n +2 | xargs --open-tty sh -c "$(cat <<'EOF'
+if [ "$#" -ne 0 ]; then
+  rm -r $(printf ' /tmp/%s' "$@")
+fi
+EOF
+  )" _
+done
+
+if [ -d /tmp/fnm_multishells ]; then
+  'ls' -A1t /tmp/fnm_multishells/ | tail -n +2 | xargs sh -c "$(cat <<'EOF'
+if [ "$#" -ne 0 ]; then
+  rm -r $(printf ' /tmp/fnm_multishells/%s' "$@")
+fi
+EOF
+  )" _
+fi
+
