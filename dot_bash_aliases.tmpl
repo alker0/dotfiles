@@ -146,3 +146,10 @@ if [ -n "$(command -v docker)" ]; then
     )
   }
 fi
+
+if [ -n "$(command -v fnm)" ]; then
+  fnmup() {
+    fnm install --lts --log-level error \
+      && fnm default lts-latest
+  }
+fi
