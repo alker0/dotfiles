@@ -1,4 +1,4 @@
-{{ template "aliases/aliases" "bash" }}
+{{ template "aliases/aliases" (dict "shell" "bash" "data" .data) }}
 
 fenv() {
   (

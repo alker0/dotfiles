@@ -1,5 +1,14 @@
-{{- if not (kindIs "string" .) }}
-{{-   fail "dot must be string" }}
+{{- if not (kindIs "map" .) }}
+{{-   fail (print "Dot must be map but " (kindOf .)) }}
+{{- end }}
+
+{{- $shell := .shell }}
+{{- $data := .data }}
+
+{{- if not (gt (len $shell) 1) }}
+{{-   fail (print "`shell` key must be string but " (kindOf .)) }}
+{{- else if not (kindIs "map" $data) }}
+{{-   fail (print "`data` key must be map but " (kindOf .))  }}
 {{- end }}
 
 {{-
@@ -89,7 +98,7 @@
     )
 }}
 
-{{- if . | eq "bash" }}
+{{- if $shell | eq "bash" }}
 {{-   range $aliases_list }}
 {{-     $depends_list := get . "depends_list"
       | default (list (hasKey . "depends" | ternary . ""))
@@ -122,7 +131,7 @@ fi
 {{-       "\n" }}
 {{-     end }}
 {{-   end }}
-{{- else if . | eq "elvish" }}
+{{- else if $shell | eq "elvish" }}
 {{-   range $aliases_list }}
 {{-     $depends_list := get . "depends_list"
         | default (hasKey . "depends"
