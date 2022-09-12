@@ -95,8 +95,47 @@ if [ -n "$(command -v chezmoi)" ]; then
       )
     }
   fi
+
+  if [ -n "$(command -v nix)" ]; then
+    nix_profile_update_base() {
+      (
+        set -e
+
+        chezmoi apply ~/.config/nix/flakes
+        builtin cd ~/.config/nix/flakes
+        if [ ! -d "$PWD/.git" ]; then
+          git init
+        fi
+        git --work-tree="$(chezmoi source-path ~/.config/nix/flakes)" add ./flake.nix
+        nix flake update --refresh --no-warn-dirty
+      )
+    }
+    alias nixpub='nix_profile_update_base'
+  fi
 fi
 
+if [ -n "$(command -v nix)" ]; then
+  nixup() {
+    nix-channel --update \
+      && {
+        if [ -n "$(command -v nix_profile_update_base)" ]; then
+          nix_profile_update_base
+        else
+          :
+        fi
+      } \
+      && nix profile upgrade '.*'
+  }
+
+  nix_profile_list_short() {
+    nix profile list | sed -E 's/^([0-9]*) *flake:nixpkgs#[^ ]+linux\./\1 /;s%(github:[^/]+/[^/]+|path:[^?]+)[^ ]+%\1%;s/flake:|\.[^ .]+-linux//g;s/#defaultPackage/#./;s/#packages\./#/'
+  }
+  alias nixpls='nix_profile_list_short'
+
+  nixclean() {
+    nix profile wipe-history && nix-collect-garbage
+  }
+fi
 
 if [ -n "$(command -v docker)" ]; then
   # buildx local cache option
