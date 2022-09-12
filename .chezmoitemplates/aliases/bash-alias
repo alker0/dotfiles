@@ -1,7 +1,5 @@
 alias {{ get . "name" }}=
-{{- if get . "note" | eq "chezmoi cd" -}}
-'cd "$(chezmoi source-path)"'
-{{- else if hasKey . "depends" }}
+{{- if hasKey . "depends" }}
 {{-   $depends := get . "depends" -}}
 '
 {{- $is_shutdown := get . "note" | eq "shutdown" }}

@@ -198,6 +198,10 @@ fn ll [@args]{ ls -Ahl $@args }
 
 {{ template "aliases/aliases" (dict "shell" "elvish" "data" .data) }}
 
+if (has-external chezmoi) {
+  edit:add-var cmcd~ [@args]{ cd (chezmoi source-path $@args) }
+}
+
 {
   use str
 
