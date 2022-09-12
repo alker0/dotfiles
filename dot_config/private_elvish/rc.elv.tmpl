@@ -10,8 +10,9 @@ if (not (has-env SHELL_RC_ENV_LOADED)) {
 {{- $home_dir := "home-dir" }}
 {{- $config_dir := "config-dir" }}
 {{- $data_dir := "data-dir" }}
+{{- $cache_dir := "cache-dir" }}
 {{- "\n" -}}{{- "    " -}}
-    var {{ $home_dir }} {{ $config_dir }} {{ $data_dir }}
+    var {{ $home_dir }} {{ $config_dir }} {{ $data_dir }} {{ $cache_dir }}
     set {{ $home_dir }} = (get-env HOME)
     if (has-env XDG_CONFIG_HOME) {
       set up:{{ $config_dir }} = (get-env XDG_CONFIG_HOME)
@@ -22,6 +23,12 @@ if (not (has-env SHELL_RC_ENV_LOADED)) {
       set up:{{ $data_dir }} = (get-env XDG_DATA_HOME)
     } else {
       set up:{{ $data_dir }} = ${{ $home_dir }}'/.local/share'
+    }
+
+    if (has-env XDG_CACHE_HOME) {
+      set up:{{ $cache_dir }} = (get-env XDG_CACHE_HOME)
+    } else {
+      set up:{{ $cache_dir }} = ${{ $home_dir }}'/.cache'
     }
 {{- "\n" }}
 {{  range .data.env.list }}
@@ -35,6 +42,8 @@ if (not (has-env SHELL_RC_ENV_LOADED)) {
 {{-         $expands = append $expands (printf "$%s" $config_dir) }}
 {{-       else if eq . "data" }}
 {{-         $expands = append $expands (printf "$%s" $data_dir) }}
+{{-       else if eq . "cache" }}
+{{-         $expands = append $expands (printf "$%s" $cache_dir) }}
 {{-       end }}
 {{-     end }}
 {{-     printf "    set-env %s" .name }} {{ template "array/printf" (dict "format" $format "expands" $expands) }}

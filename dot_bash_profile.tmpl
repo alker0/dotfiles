@@ -14,6 +14,8 @@ fi
 {{-         $expands = append $expands "${XDG_CONFIG_HOME:-$HOME/.config}"  }}
 {{-       else if eq . "data" }}
 {{-         $expands = append $expands "${XDG_CONFIG_HOME:-$HOME/.local/share}" }}
+{{-       else if eq . "cache" }}
+{{-         $expands = append $expands "${XDG_CONFIG_HOME:-$HOME/.cache}" }}
 {{-       end }}
 {{-     end }}
 {{-     printf "export %s" .name }}={{ template "array/printf" (dict "format" .format "expands" $expands "quote" "double") }}
