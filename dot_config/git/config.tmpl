@@ -1,6 +1,7 @@
 [core]
   editor = {{ .git.editor }}
   symlinks = true
+  pager = "less --no-init --RAW-CONTROL-CHARS --quit-if-one-screen"
 [user]
   email = {{ .git.email }}
   name = {{ .git.name }}
@@ -32,14 +33,16 @@
 {{- if $signingkey }}
   gpgsign = true
 {{- end }}
+[fetch]
+  parallel = 4
 [pull]
   ff = only
-[color]
-  status = auto
-  diff = auto
-  branch = auto
+[clone]
+  filterSubmodules = true
 [status]
-  submoduleSummary = 1
+  submoduleSummary = true
+[submodule]
+  fetchJobs = 4
 [diff]
 {{- with index .git "default_diff" }}
   tool = {{ . }}
@@ -58,23 +61,39 @@
 [mergetool "code-merge"]
   cmd = code --reuse-window $MERGED
   trustExitCode = false
-
+[url "https://github.com/"]
+  insteadOf = "gh:"
 [alias]
-  al = !git config --get-regexp ^alias\\. | cut -d '.' -f 2 | sed -e 's/ / = /'
-  alias = !git config --get-regexp ^alias\\. | cut -d '.' -f 2 | sed -e 's/ / = /'
+  al = !git config --get-regexp ^alias\\. | cut -d '.' -f 2- | sed -e 's/ / = /'
+  alias = !git config --get-regexp ^alias\\. | cut -d '.' -f 2- | sed -e 's/ / = /'
   cf = config
   cfl = config --list
   cl = clone
-  clsp = clone --sparse --filter=blob:none
+  cl1 = clone --depth=1
+  cl1tn = clone --depth=1 --filter=tree:0
+  cl1r = clone --depth=1 --recurse-submodules --shallow-submodules
+  clsp = clone --sparse --filter=tree:0
+  clsp1 = clone --sparse --filter=tree:0 --depth=1
   ftbn = fetch --filter=blob:none
+  fttn = fetch --filter=tree:0
   ft1 = fetch --depth=1 --update-shallow
+  ft1tn = fetch --depth=1 --update-shallow --filter=tree:0
   ftpr = fetch --prune
   ftpr1 = fetch --prune --depth=1 --update-shallow
-  ftm = fetch --prune --depth=1 --update-shallow --filter=blob:none
-  ftpr = fetch --prune
+  ftpr1bn = fetch --prune --depth=1 --update-shallow --filter=blob:none
+  ftpr1tn = fetch --prune --depth=1 --update-shallow --filter=tree:0
+  spi = sparse-checkout set --no-cone --sparse-index "/"
+  sm = submodule
+  smg = !sh -c 'git --git-dir=.git/module/$0 \"$@\"'
+  smrc = submodule-recovery
+  smro = submodule-readonly
+  sma1gh = !sh -c 'git submodule add --depth=1 \"$@\" -- \"https://github.com/${0}\"'
+  smu1tn = submodule update --init --filter=tree:0
+  smspi = submodule --quiet foreach 'git sparse-checkout set --no-cone --sparse-index "/"'
+  smspe = submodule-sparse-edit
   mgsq = merge --squash
   mgff = merge --ff-only
-  mgbfp = !sh -c 'git fetch --prune origin && git merge --ff-only --rebase origin/${1:-main}' _
+  mgbfp = !sh -c 'git fetch --prune origin && git merge --ff-only origin/${1:-main}' _
   mgafp = !sh -c 'git fetch --prune origin && git merge --ff-only origin/${1:-main}' _
   sw = switch
   br = branch
@@ -92,7 +111,10 @@
   dfnp = !git --no-pager diff
   dft = difftool
   dftc = difftool --cached
-  su = status
+  su = status --short --branch
+  sua = status --short --branch --untracked-files=all
+  suf = status
+  sufa = status --untracked-files=all
   l = log
   l1 = log --oneline
   sh = stash
@@ -105,6 +127,6 @@
   uisw = update-index --skip-worktree
   uinsw = update-index --no-skip-worktree
   shbr = show-branch
-  brls = !git branch | grep -v '[~]'
-  stls = !git stash list | grep -v '[~]'
+  brls = branch --all
+  stls = stash list
   uils = !git ls-files -v | grep ^S
