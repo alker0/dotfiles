@@ -2,7 +2,7 @@ alias {{ get . "name" }}=
 {{- if hasKey . "depends" }}
 {{-   $depends := get . "depends" -}}
 '
-{{- $is_shutdown := get . "note" | eq "shutdown" }}
+{{-   $is_shutdown := get . "note" | eq "shutdown" }}
 {{-   if $is_shutdown -}}
 {{-     "history -a && exec " }}
 {{-   end }}
