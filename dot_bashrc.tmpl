@@ -28,10 +28,6 @@ if [ -x /usr/bin/dircolors ]; then
   done
 fi
 
-if [ -n "$(command -v wget)" ]; then
-  alias wget="wget --hsts-file ${XDG_DATA_HOME:-$HOME/.local/share}/wget/wget-hsts"
-fi
-
 if [ -n "$(command -v gpg)" ]; then
   export GPG_TTY="$(tty)"
   alias gpg="LANG=en_US.utf8 gpg"

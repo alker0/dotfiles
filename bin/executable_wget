@@ -1,0 +1,4 @@
+#!/bin/sh
+
+PATH="${PATH#*$(dirname "$0")*}:" \
+  exec wget --hsts-file "${XDG_DATA_HOME:-$HOME/.local/share}/wget/wget-hsts" "$@"
