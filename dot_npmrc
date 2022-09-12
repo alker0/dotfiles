@@ -1,0 +1,5 @@
+include = dev
+save-exact = true
+progress = false
+fund = false
+searchexclude = react vue angular
