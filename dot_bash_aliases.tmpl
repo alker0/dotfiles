@@ -200,3 +200,33 @@ if [ -n "$(command -v pip)" ]; then
     )
   }
 fi
+
+upgrade_all() {
+  (
+    set -e
+
+    show_separator() {
+      bar="${bar:=$(printf '\u2015%.0s' `seq 8`)}"
+      echo -e "\e[1m$bar ${1?} $bar\e[0m"
+    }
+
+    if [ -n "$(command -v topgrade)" ]; then
+      topgrade || return $?
+    fi
+
+    if [ -n "$(command -v nixup)" ]; then
+      show_separator 'Nix'
+      nixup || return $?
+    fi
+
+    if [ -n "$(command -v fnmup)" ]; then
+      show_separator 'Fast Node Manager'
+      fnmup || return $?
+    fi
+
+    if [ -n "$(command -v pipup_system)" ]; then
+      show_separator 'Package Installer for Python'
+      pipup_system || return $?
+    fi
+  )
+}
