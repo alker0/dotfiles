@@ -63,6 +63,9 @@
   trustExitCode = false
 [url "https://github.com/"]
   insteadOf = "gh:"
+[filter "git"]
+  clean = "expand --tab=2 --initial"
+  smudge = "expand --tab=2 --initial"
 [alias]
   al = !git config --get-regexp ^alias\\. | cut -d '.' -f 2- | sed -e 's/ / = /'
   alias = !git config --get-regexp ^alias\\. | cut -d '.' -f 2- | sed -e 's/ / = /'
