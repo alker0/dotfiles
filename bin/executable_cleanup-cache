@@ -1,0 +1,200 @@
+#!/bin/sh
+
+while getopts adhqv-: opt; do
+  opt_raw="$opt"
+  optarg_raw="$OPTARG"
+
+  optarg="$OPTARG"
+  if [ "_$opt" = _- ]; then
+    optarg_before_qeual="${optarg_raw%%=*}"
+    opt="-$optarg_before_qeual"
+    optarg="${optarg_raw#${optarg_before_qeual}=}"
+    : optarg="${optarg#=}"
+
+    : optind_raw="$OPTIND"
+    optind_name="$(eval 'echo "${'"$OPTIND"'}"')"
+    if [ -z "$optarg" ] && [ ! "_${optind_name%%[^-]*}" = _- ]; then
+      optarg="$optind_name"
+    fi
+  fi
+
+  case "-$opt" in
+    -a|--all)
+      all='1'
+      ;;
+    -d|--docker-type)
+      all='1'
+      ;;
+    -h|--help)
+      help="1"
+      ;;
+    -q|--quite)
+      quite='1'
+      ;;
+    -v|--version)
+      echo "cleanup-cache"
+      echo 'v0.0.1'
+      exit
+      ;;
+    --)
+      break
+      ;;
+    -\?|--*)
+      echo "illegal option -- '$opt_raw'" >&2
+      exit 1
+      ;;
+  esac
+done
+shift "$(expr "$OPTIND" - 1)"
+
+set -e
+
+cache_type_patterns="$(cat <<EOF
+apt
+dart
+deno
+docker|docker-a|docker-all
+docker-c|docker-container
+docker-i|docker-image
+docker-o|docker-other
+flutter
+git
+go
+nix
+npm
+pip
+pyhton
+yarn
+EOF
+)"
+
+if [ "_$help" = _1 ]; then
+  cat <<EOF
+cleanup-cache
+
+Supported cache type:
+$(echo "$cache_type_patterns" | sed -e 's/^/  /;s/|/, /g')
+EOF
+  exit
+fi
+
+if [ ! "_$all" = _1 ] && [ "$#" -ne 0 ]; then
+  target_cache_types="$(printf '%s\n' "$@" \
+    | grep -E " *$(echo "$cache_type_patterns" | tr '\n' '|') *")"
+else
+  target_cache_types="$(echo "$cache_type_patterns" | sed -E 's/([^|]+\|)*(.+)$/\2/' | grep -v 'docker-[^a]')"
+fi
+
+done_type=''
+
+not_done_docker_all() {
+  if echo "$done_type" | grep -qvE '^docker(-a(ll)?)?'; then
+    return 1
+  else
+    return 0
+  fi
+}
+
+docker_in_unix_fs() {
+  command -v 'docker' | grep -qvE '^/mnt/[a-z]/'
+}
+
+echo "$target_cache_types" | while IFS= read cache_type; do
+  if echo "$done_type" | grep -qEx "$cache_type"; then
+    continue
+  fi
+  case "$cache_type" in
+    apt)
+      if [ -n "$(command -v apt)" ]; then
+        sudo apt-get clean
+      fi
+      ;;
+    dart)
+      if [ -n "$(command -v dart)" ]; then
+        pub cache clean
+      fi
+      ;;
+    deno)
+      deno_dir="$(deno info | grep DENO_DIR | sed -e 's/.* "//; s/"$//')"
+      rm -rf "$deno_dir"
+      ;;
+    docker|docker-a|docker-all)
+      if echo "$done_type" | grep -qE '^docker'; then
+        continue
+      elif docker_in_unix_fs; then
+        docker system prune -a
+        exit
+      fi
+      ;;
+    docker-c|docker-container)
+      if not_done_docker_all && docker_in_unix_fs; then
+        docker container prune
+      fi
+      ;;
+    docker-i|docker-image)
+      if not_done_docker_all && docker_in_unix_fs; then
+        docker image prune -a
+      fi
+      ;;
+    docker-o|docker-other)
+      if not_done_docker_all && docker_in_unix_fs; then
+        docker network prune
+        docker volume prune
+      fi
+      ;;
+    git)
+      if [ -e "$PWD/.git" ] && [ -n "$(command -v git)" ]; then
+        git gc --aggressive --prune=now
+      fi
+      ;;
+    flutter)
+      if [ -d "$PWD/pubspec.yml" ] && [ -n "$(command -v flutter)" ]; then
+        flutter clean
+      fi
+      ;;
+    git)
+      if [ -n "$(command -v git)" ]; then
+        git gc --aggressive --prune=now
+      fi
+      ;;
+    go)
+      if [ -n "$(command -v go)" ]; then
+        go clean --cache
+      fi
+      ;;
+    nix)
+      if [ -n "$(command -v nix)" ]; then
+        nix profile wipe-history
+        nix-collect-garbage
+      fi
+      ;;
+    npm)
+      if [ -n "$(command -v npm)" ]; then
+        npm cache clean --force
+        rm -rf "$HOME/.npm/"
+        : rm -rf "$PWD/node_modules"
+      fi
+      ;;
+    pip|python)
+      # Required pip version >= 2.1
+      system_pip="$(command -vp pip)"
+      if [ -n "$system_pip" ]; then
+        "$system_pip" cache purge
+      fi
+      current_pip="$(command -v pip | grep -vFx "$system_pip")"
+      echo "$current_pip"
+      if [ -n "$current_pip" ]; then
+        "$current_pip" cache purge
+      fi
+      ;;
+    yarn)
+      if [ -n "$(command -v yarn)" ]; then
+        yarn cache clean
+      fi
+      ;;
+    *)
+      continue
+      ;;
+  esac
+  done_type="$(printf '%s\n%s' "$done_type" "$cache_type" )"
+done
