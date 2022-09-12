@@ -153,3 +153,50 @@ if [ -n "$(command -v fnm)" ]; then
       && fnm default lts-latest
   }
 fi
+
+if [ -n "$(command -vp pip)" ]; then
+  pipup_system() {
+    (
+      set -e
+
+      system_pip="$(command -vp pip)"
+      if [ -n "$system_pip" ]; then
+        "$system_pip" install --upgrade pip
+
+        if [ -z "$(command -vp pipupgrade)" ]; then
+          "$system_pip" install pipupgrade
+        fi
+
+        system_pipupgrade="$(command -vp pipupgrade)"
+        if [ -n "$system_pipupgrade" ]; then
+          "$system_pipupgrade" --latest --yes --pip-path "$system_pip"
+        fi
+      fi
+    )
+  }
+fi
+
+if [ -n "$(command -v pip)" ]; then
+  pipup_current() {
+    (
+      set -e
+
+      system_pip="$(command -vp pip)"
+      current_pip="$(command -v pip)"
+      if [ ! "_$current_pip" = "_$system_pip" ]; then
+        pip install --upgrade pip
+
+        if [ -z "$(command -v pipupgrade)" ]; then
+          pip install pipupgrade
+        fi
+
+        system_pipupgrade="$(command -vp pipupgrade)"
+        current_pipupgrade="$(command -v pipupgrade)"
+        if [ -n "$current_pipupgrade" ] \
+          && [ ! "_$current_pipupgrade" = "_$system_pipupgrade" ]; then
+          pipupgrade --verbose --latest --yes
+        fi
+      fi
+    )
+  }
+fi
