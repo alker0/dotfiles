@@ -3,7 +3,7 @@ list = [
   { name = 'TZ', format = 'Asia/Tokyo' },
   { name = 'INPUTRC', format = '%s/readline/inputrc', expands = ['config'] },
   { name = 'PAGER', format = 'less' },
-  { name = 'LESS', format = '-I -R -M -W -x2' },
+  { name = 'LESS', format = '--no-init --LONG-PROMPT --HILITE-UNREAD --RAW-CONTROL-CHARS --IGNORE-CASE --tabs=2 --shift=4' },
   { name = 'LESSHISTFILE', format = '-' },
   { name = 'NODE_REPL_HISTORY', format = '' },
   { name = 'DOCKER_CONFIG', format = '%s/docker', expands = ['config'] },
