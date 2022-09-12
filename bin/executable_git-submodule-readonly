@@ -1,0 +1,20 @@
+#!/bin/sh
+
+set -e
+
+export target_names="$(printf '%s\n' "${@:-'.*'}")"
+
+git submodule --quiet --recursive foreach '{
+  set -e
+
+  if echo "$target_names" | grep -qE "^$name$"; then
+    git config --file "${toplevel}/.gitmodules" "submodule.${name}.shallow" true
+    git config --file "${toplevel}/.gitmodules" "submodule.${name}.ignore" all
+    git remote set-url --push origin DONT_PUSH
+
+    echo "\`${name}\` (${sm_path}/) is readonly"
+  else
+    echo "Skip \`${name}\`"
+  fi
+}'
+

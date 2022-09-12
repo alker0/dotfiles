@@ -1,0 +1,31 @@
+#!/bin/sh
+
+set -e
+
+git submodule --quiet foreach --recursive '{
+  set -e
+
+  super_dir="$(git rev-parse --show-superproject-working-tree)"
+  edit_path="$(git rev-parse --git-path "info/sparse-checkout")"
+  edit_display_path="${edit_path##${super_dir}/}"
+
+  old_hash="$(md5sum "$edit_path")"
+
+  # echo "Edit $edit_display_path"
+
+  if [ -f "$edit_path" ]; then
+    "${EDITOR:-vi}" "$edit_path"
+  else
+    echo "Skip \`${name}\`" for not sparse-checkout mode
+  fi
+
+  if { [ '0' -ne "$?" ] || ! echo "$old_hash" | md5sum --warn --strict --status --check - ; } ; then
+    echo "\`${name}\` ($edit_display_path) is edited"
+
+    git sparse-checkout reapply
+    #git reset --hard
+  else
+    echo "Skip \`${name}\`" for not changed
+  fi
+}'
+

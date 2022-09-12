@@ -1,0 +1,70 @@
+#!/bin/sh
+
+set -e
+
+gitmodules_path="$PWD/.gitmodules"
+module_names="$(git submodule status | sed -e 's/^\s*//' | cut -d' ' -f2)"
+xargs_script="$(cat <<EOF1 && cat <<'EOF2' | sed '1d;$d'
+EOF1
+({
+  set -e
+
+  key_prefix="${1?}"
+  name="${key_prefix##submodule.}"
+  sm_path="$(git config --file "$gitmodules_path" --type path --get "submodule.${name}.path")"
+
+  if { git submodule--helper is-active "$sm_path" && echo "$module_name" | grep -qE "^$name\$" ; } ; then
+    echo "Skip \`${name}\`"
+    return
+  else
+    :
+  fi
+
+  url="$(git config --file "$gitmodules_path" --type path --get "submodule.${name}.url")"
+  branch="$(git config --file "$gitmodules_path"  --get "submodule.${name}.branch" || :)"
+  module_real_git_dir="$(git rev-parse "--git-path" "modules/$name")"
+  clone_module() {
+    git clone --no-checkout ${branch:+--branch "$branch"} --separate-git-dir="$module_real_git_dir" --depth=1 --recurse-submodules --shallow-submodules --filter=tree:0 --also-filter-submodules -- "$url" "$sm_path"
+  }
+  if [ -d "$sm_path" ]; then
+    if [ ! -e "$sm_path/.git" ]; then
+      echo "Missing .git in \`$sm_path\`"
+      if [ -d "$module_real_git_dir" ]; then
+        rm -rf "$module_real_git_dir"
+        clone_module
+      elif rmdir "$sm_path"; then
+        :
+      else
+        return 0
+      fi
+    fi
+  else
+    rm -rf "$module_real_git_dir"
+    clone_module
+  fi
+
+  git submodule add --depth=1 --name "$name" ${branch:+--branch "$branch" }-- "$url" "$sm_path"
+
+  cd "$sm_path"
+  git remote set-url --push origin DONT_PUSH
+  git config clone.filterSubmodules true
+  git config remote.origin.partialCloneFilter tree:0
+  git sparse-checkout set --no-cone --sparse-index '/'
+  git reset --hard
+
+  #super_dir="$(git rev-parse --show-superproject-working-tree)"
+  #if [ -d "$super_dir" ]; then
+  #  cd "$super_dir"
+  #  git submodule update --init --filter=tree:0 --remote --no-fetch --depth=1 --recursive -- "$sm_path"
+  #  #git submodule sync
+  #fi
+})
+EOF2
+)"
+
+export gitmodules_path module_names
+
+git config --file "$gitmodules_path" --name-only --type path --get-regexp '^submodule\..+\.url$' \
+  | sed -E 's%^(submodule\..*)\.url$%\1%' \
+  | xargs -P$(nproc) -L1 sh -c "$xargs_script" _
+
