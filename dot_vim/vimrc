@@ -138,6 +138,15 @@ set title
 " set term=xterm-256color
 
 if exists('+syntax')
+  function! s:resetBgColor()
+    highlight Normal ctermbg=none
+    highlight LineNr ctermbg=none
+  endfunction
+
+  augroup vimrc
+    autocmd VimEnter,ColorScheme * call s:resetBgColor()
+  augroup END
+
   colorscheme desert
 endif
 
