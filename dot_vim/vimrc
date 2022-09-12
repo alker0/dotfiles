@@ -271,3 +271,5 @@ inoremap jj <C-[>
 
 inoremap <C-b> <C-g>U<Left>
 inoremap <C-f> <C-g>U<Right>
+
+command! -range -nargs=+ -complete=shellcmd RunTab :tabnew <args> | setlocal buftype=nofile | setlocal bufhidden=wipe | setlocal noswapfile | <range>read !<args>
