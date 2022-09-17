@@ -196,7 +196,7 @@ var ls~ = $e:ls~
 fn la [@args]{ ls -A $@args }
 fn ll [@args]{ ls -Ahl $@args }
 
-{{ template "shell/aliases" (dict "shell" "elvish" "data" .data) }}
+{{ template "shell/elvish-alias.elv" . -}}
 
 if (has-external chezmoi) {
   edit:add-var cmcd~ [@args]{ cd (chezmoi source-path $@args) }
