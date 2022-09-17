@@ -1,1 +1,1 @@
-{{ joinPath (dir .chezmoi.sourceFile | joinPath .chezmoi.sourceDir) ".flake.lock" }}
+{{ joinPath .chezmoi.sourceDir (.chezmoi.sourceFile | dir) ".flake.lock" }}
