@@ -106,7 +106,7 @@ echo "$target_cache_types" | while IFS= read cache_type; do
   case "$cache_type" in
     apt)
       if [ -n "$(command -v apt)" ]; then
-        sudo apt-get clean
+        sudo apt-get autoclean
       fi
       ;;
     dart)
