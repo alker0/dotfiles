@@ -101,12 +101,10 @@ if [ -n "$(command -v chezmoi)" ]; then
       (
         set -e
 
-        chezmoi apply ~/.config/nix/flakes
-        builtin cd ~/.config/nix/flakes
-        if [ ! -d "$PWD/.git" ]; then
-          git init
-        fi
-        git --work-tree="$(chezmoi source-path ~/.config/nix/flakes)" add ./flake.nix
+        flakes_dir="$HOME/.config/nix/flakes"
+        chezmoi apply "$flakes_dir"
+        builtin cd "$flakes_dir"
+        git add .
         nix flake update --refresh --no-warn-dirty
       )
     }
