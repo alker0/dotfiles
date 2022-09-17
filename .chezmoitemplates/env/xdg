@@ -1,0 +1,11 @@
+{{- if not (kindIs "string" .) }}
+{{-   fail (print "Dot must be string but " (kindOf .)) }}
+{{- end }}
+{{- $xdg_dict := dict
+  "config" (dict "env" "XDG_CONFIG_HOME" "default" "$HOME/.config")
+  "data" (dict "env" "XDG_DATA_HOME" "default" "$HOME/.local/share")
+  "state" (dict "env" "XDG_STATE_HOME" "default" "$HOME/.local/state")
+  "cache" (dict "env" "XDG_CACHE_HOME" "default" "$HOME/.cache")
+}}
+{{- $target_xdg_dict := get $xdg_dict . }}
+{{- get $target_xdg_dict "env" | env | default (get $target_xdg_dict "default" | expandenv) -}}
