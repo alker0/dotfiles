@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+
+import os, pty, select, subprocess, sys
+
+#inp_master, inp_slave = pty.openpty()
+out_master, out_slave = pty.openpty()
+err_master, err_slave = pty.openpty()
+
+#fminp = os.fdopen(inp_master, 'w')
+fmout = os.fdopen(out_master, 'r')
+fmerr = os.fdopen(err_master, 'r')
+
+proc = subprocess.Popen(
+  sys.argv[1:],
+  stdin=subprocess.PIPE,#inp_slave,
+  stdout=out_slave,
+  stderr=err_slave,
+  close_fds=True
+)
+
+#proc.stdin.close()
+
+while proc.poll() is None:
+  rlist, wlist, xlist = select.select([out_master, err_master], [], [], 0.3)
+  for stream in rlist:
+    if stream == out_master:
+      data = os.read(stream, 1000)
+      sys.stdout.write(data.decode('utf-8'))
+      sys.stdout.flush()
+    elif stream == err_master:
+      data = os.read(stream, 1000)
+      sys.stderr.write(data.decode('utf-8'))
+      sys.stderr.flush()
+    else:
+      break
+
+proc.wait()
+
+exit(proc.returncode)

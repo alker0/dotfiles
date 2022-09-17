@@ -156,47 +156,65 @@ if [ -n "$(command -v fnm)" ]; then
   }
 fi
 
-if [ -n "$(command -vp pip)" ]; then
-  pipup_system() {
+if [ -n "$(command -v python3)" ]; then
+  if [ -z "$(command -v python)" ]; then
+    alias python='python3'
+  fi
+
+  pipup_user() {
     (
       set -e
 
-      system_pip="$(command -vp pip)"
-      if [ -n "$system_pip" ]; then
-        "$system_pip" install --upgrade pip
+      builtin cd "$HOME"
 
-        if [ -z "$(command -vp pipupgrade)" ]; then
-          "$system_pip" install pipupgrade
-        fi
+      if [ -n "$(command -v pseudo-tty)" ]; then
+        pseudo_tty='pseudo-tty'
+      else
+        pseudo_tty=
+      fi
 
-        system_pipupgrade="$(command -vp pipupgrade)"
-        if [ -n "$system_pipupgrade" ]; then
-          "$system_pipupgrade" --latest --yes --pip-path "$system_pip"
+      $pseudo_tty python3 -m pip install --user --upgrade pip \
+        | { grep --color=never -v 'already satisfied' || [ $? -eq 1 ]; }
+
+      pypip() {
+        python3 -m pip "$@"
+      }
+
+      piplist="$(pypip list)"
+      if ! echo "$piplist" | grep -q pipupgrade; then
+        pypip install --user 'pipupgrade>=1.12.0'
+      fi
+
+      if [ -n "$(command -v pipupgrade)" ]; then
+        piplist="$(pypip list)"
+        if echo "$piplist" | grep pipupgrade | tr -s ' ' | cut -d' ' -f2 | grep -q '^0'; then
+          pypip install --user --upgrade 'pipupgrade>=1.12.0'
         fi
+        $pseudo_tty pipupgrade --latest --yes --user \
+          | grep --color=never -v '| *INFO *|'
       fi
     )
   }
-fi
 
-if [ -n "$(command -v pip)" ]; then
   pipup_current() {
     (
       set -e
 
-      system_pip="$(command -vp pip)"
-      current_pip="$(command -v pip)"
-      if [ ! "_$current_pip" = "_$system_pip" ]; then
-        pip install --upgrade pip
+      user_py="$(builtin cd "$HOME" && command -v python3)"
+      current_py="$(command -v python3)"
+      if [ ! "_$current_py" = "_$user_py" ]; then
+        pypip() {
+          python3 -m pip "$@"
+        }
 
-        if [ -z "$(command -v pipupgrade)" ]; then
-          pip install pipupgrade
-        fi
+        pypip install --upgrade pip
 
-        system_pipupgrade="$(command -vp pipupgrade)"
-        current_pipupgrade="$(command -v pipupgrade)"
-        if [ -n "$current_pipupgrade" ] \
-          && [ ! "_$current_pipupgrade" = "_$system_pipupgrade" ]; then
-          pipupgrade --verbose --latest --yes
+        if [ -n "$(command -v pipupgrade)" ]; then
+          piplist="$(pypip list)"
+          if echo "$piplist" | grep pipupgrade | tr -s ' ' | cut -d' ' -f2 | grep -q '^0'; then
+            pypip install --upgrade 'pipupgrade>=1.12.0'
+          fi
+          pipupgrade --latest --yes
         fi
       fi
     )
@@ -226,9 +244,9 @@ upgrade_all() {
       fnmup || return $?
     fi
 
-    if [ -n "$(command -v pipup_system)" ]; then
+    if [ -n "$(command -v pipup_user)" ]; then
       show_separator 'Package Installer for Python'
-      pipup_system || return $?
+      pipup_user || return $?
     fi
   )
 }
