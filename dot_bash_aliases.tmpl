@@ -115,6 +115,10 @@ if [ -n "$(command -v chezmoi)" ]; then
 fi
 
 if [ -n "$(command -v nix)" ]; then
+  nix_register_userflakes() {
+    nix registry add userflakes "$HOME/.config/nix/flakes"
+  }
+
   nixup() {
     nix-channel --update \
       && {
