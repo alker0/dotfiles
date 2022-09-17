@@ -3,56 +3,58 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/master";
+    flake-utils.url = "github:numtide/flake-utils";
     advanceUtils.url = "path:./advance-utils";
+    advanceUtils.inputs.nixpkgs.follows = "nixpkgs";
     python.url = "path:./python";
+    python.inputs.nixpkgs.follows = "nixpkgs";
+    python.inputs.flake-utils.follows = "flake-utils";
+    #python.inputs.mach-nix.inputs.nixpkgs.follows = "nixpkgs";
+    #python.inputs.mach-nix.inputs.flake-utils.follows = "flake-utils";
   };
 
-  outputs = { self, nixpkgs, ... }@inp:
+  outputs = { self, nixpkgs, flake-utils, ... }@inp:
     with builtins;
-    let
-      l = nixpkgs.lib;
-      pkgs = import nixpkgs { system = "x86_64-linux"; };
-    in
-    {
-      defaultPackage.x86_64-linux = pkgs.symlinkJoin {
-        name = "profile global";
-        paths = with pkgs; [
-          bat
-          bitwarden-cli
-          chezmoi
-          curl # maybe need to repair [man bin dev devdoc]
-          du-dust
-          exa # maybe need to repair [man]
-          fzf # maybe need to repair [man]
-          gh
-          gnupg
-          go-task
-          pass # password-store ?
-          tig
-          topgrade
-          tree
-          unzip
-          vim
-          zip
-          # ---- non required ----
-          # deno
-          # fnm
-          # go
-        ];
-      };
-      packages = foldl' (prev: pkgName:
-        let
-          flakeResult = inp."${pkgName}".defaultPackage;
-        in
-          foldl' (prevDerivs: system:
-            let
-            in l.recursiveUpdate prevDerivs
-            {
-              "${system}"."${pkgName}" = flakeResult."${system}";
-            }
-          ) prev (attrNames flakeResult)
-      ) {} (attrNames (l.attrsets.filterAttrs (argName: argValue:
-          ! elem argName ["self" "nixpkgs"]
-        ) inp));
-    };
+    flake-utils.lib.eachSystem [ "x86_64-linux" ] (system:
+      let
+        l = nixpkgs.lib;
+        pkgs = import nixpkgs { inherit system; };
+        subFlakePkgs = l.attrsets.mapAttrs (pkgName: pkgValue: pkgValue.defaultPackage."${system}") (
+          l.attrsets.filterAttrs (argName: argValue:
+            ! elem argName ["self" "nixpkgs" "flake-utils"]
+          ) inp
+        );
+      in
+      rec {
+        packages = flake-utils.lib.flattenTree {
+          default = pkgs.symlinkJoin {
+            name = "profile global";
+            paths = with pkgs; [
+              bat
+              bitwarden-cli
+              chezmoi
+              curl # maybe need to repair [man bin dev devdoc]
+              du-dust
+              exa # maybe need to repair [man]
+              fzf # maybe need to repair [man]
+              gh
+              gnupg
+              go-task
+              pass # password-store ?
+              tig
+              topgrade
+              tree
+              unzip
+              vim
+              zip
+              # ---- non required ----
+              # deno
+              # fnm
+              # go
+            ];
+          };
+        } // subFlakePkgs;
+        defaultPackage = packages.default;
+      }
+    );
 }
