@@ -177,14 +177,13 @@ echo "$target_cache_types" | while IFS= read cache_type; do
       ;;
     pip|python)
       # Required pip version >= 2.1
-      system_pip="$(command -vp pip)"
-      if [ -n "$system_pip" ]; then
-        "$system_pip" cache purge
+      user_py="$(command cd "$HOME" && { command -v python || command -v python3; })"
+      if [ -n "$user_py" ]; then
+        "$user_py" -m pip cache purge # --quite
       fi
-      current_pip="$(command -v pip | grep -vFx "$system_pip")"
-      echo "$current_pip"
-      if [ -n "$current_pip" ]; then
-        "$current_pip" cache purge
+      current_py="$({ command -v python || command -v python3; } | { grep -vFx "$user_py" || :; })"
+      if [ -n "$current_py" ]; then
+        "$current_py" -m pip cache purge # --quite
       fi
       ;;
     yarn)
