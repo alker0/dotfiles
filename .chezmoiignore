@@ -22,6 +22,7 @@ fenv-excludes
 
 {{- if not .use_vim }}
 .vim/
+.local/state/vim/
 {{- end }}
 
 {{- if not .use_win32yank }}

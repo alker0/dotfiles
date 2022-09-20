@@ -17,14 +17,19 @@ if 1
   let g:loaded_2html_plugin = 1
 
   " ---- ENV ----
+  let g:local_config_dir = $XDG_CONFIG_HOME
+  if empty($XDG_CONFIG_HOME)
+    let g:local_config_dir = expand('~/.config')
+  endif
+
   let g:local_data_dir = $XDG_DATA_HOME
   if empty($XDG_DATA_HOME)
     let g:local_data_dir = expand('~/.local/share')
   endif
 
-  let g:local_config_dir = $XDG_CONFIG_HOME
-  if empty($XDG_CONFIG_HOME)
-    let g:local_config_dir = expand('~/.config')
+  let g:local_state_dir = $XDG_STATE_HOME
+  if empty($XDG_STATE_HOME)
+    let g:local_state_dir = expand('~/.local/state')
   endif
 
   " let g:local_tmp_dir = expand('~/tmp')
@@ -35,6 +40,7 @@ if 1
   if !has('unix')
     let g:local_data_dir = substitute(g:local_data_dir, '\\', '/', 'g')
     let g:local_config_dir = substitute(g:local_config_dir, '\\', '/', 'g')
+    let g:local_state_dir = substitute(g:local_state_dir, '\\', '/', 'g')
     " let g:local_tmp_dir = substitute($TEMP, '\\', '/', 'g')
     let g:vim_config_dir = substitute(g:vim_config_dir, '\\', '/', 'g')
   endif
@@ -227,7 +233,8 @@ set noundofile
 set viminfo='100,<50,s10,h,n~/.vim/.viminfo
 
 " ---- terminal ----
-if &shell =~# '\v.*/(|[bd]a|[ackz]|tc|fi)sh'
+if &shell =~# '\v/%([bd]a|[ackz]|tc|fi)?sh'
+  let $HISTFILE = g:local_state_dir . '/vim/' . matchstr(&shell, '\v/\zs%([bd]a|[ackz]|tc|fi)?sh') . '_history'
   let &shell.=' -i'
 endif
 
