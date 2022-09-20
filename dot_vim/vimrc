@@ -230,7 +230,7 @@ set noundofile
 " default -> '100 <50 s10 h
 " path -> n
 " other -> ! % / : @ c f r
-set viminfo='100,<50,s10,h,n~/.vim/.viminfo
+set viminfo='10,<50,s10,h,n~/.vim/.viminfo
 
 " ---- terminal ----
 if &shell =~# '\v/%([bd]a|[ackz]|tc|fi)?sh'
