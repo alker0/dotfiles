@@ -2,6 +2,7 @@
 
 'ls' -A1 /tmp | 'grep' -E "^($(printf '|%s' $(cat <<'EOF'
 bash_alias_completion
+chezmoi-edit-*
 chrootenv
 core-js-banners
 dart-code-startup-log-.*
@@ -12,10 +13,11 @@ native-platform
 nix-.*
 npm-.*
 phantomjs
+pip-uninstall-*
 pyright-.*
 python-languageserver
 tmp.*.pem
-v8-compile-cache
+v8-compile-cache-.*
 vim-.*
 xfs-.*
 yarn--.*
