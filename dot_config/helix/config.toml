@@ -1,0 +1,4 @@
+[keys.insert]
+j = { j = "normal_mode" }
+#[keys.prompt]
+#C-j = "ret"
