@@ -19,11 +19,20 @@
       let
         l = nixpkgs.lib;
         pkgs = import nixpkgs { inherit system; };
-        subFlakePkgs = l.attrsets.mapAttrs (pkgName: pkgValue: pkgValue.defaultPackage."${system}") (
-          l.attrsets.filterAttrs (argName: argValue:
-            ! elem argName ["self" "nixpkgs" "flake-utils"]
-          ) inp
-        );
+        subFlakes = l.attrsets.filterAttrs (argName: argValue:
+          ! elem argName ["self" "nixpkgs" "flake-utils"]
+        ) inp;
+        subFlakeDefaultPkgs = l.attrsets.mapAttrs (
+          pkgName: pkgValue: pkgValue.defaultPackage."${system}"
+        ) subFlakes;
+        subFlakeSubPkgs = builtins.zipAttrsWith (name: values: builtins.head values) (
+          l.attrsets.mapAttrsToList (subFlakeName: subFlake:
+            l.attrsets.mapAttrs' (subPkgName: subPkgValue: {
+              name = subFlakeName + ".${subPkgName}";
+              value = subPkgValue;
+            }) subFlake.packages."${system}"
+        ) (l.attrsets.filterAttrs (argName: argValue: argValue ? "packages") subFlakes));
+        subFlakePkgs = subFlakeDefaultPkgs // subFlakeSubPkgs;
       in
       rec {
         packages = flake-utils.lib.flattenTree {
