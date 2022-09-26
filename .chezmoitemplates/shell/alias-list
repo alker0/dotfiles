@@ -27,7 +27,7 @@
         )
       )
     )
-    (dict "depends" "wt.exe"
+    (dict "depends" "wsl.exe"
       "aliases" (list
         (dict "name" "restart" "command" "exec %s")
       )
