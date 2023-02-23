@@ -110,6 +110,17 @@
         (dict "name" "bwlo" "command" "%s logout")
       )
     )
+    (dict "depends" "gmailctl"
+      "check_on_run" true
+      "aliases" (list
+        (dict "name" "gmailctl" "command" (print "%s --config " (joinPath (includeTemplate "env/xdg" "config") "gmailctl" | quote)))
+        (dict "name" "gmc" "command" (print "%s --config " (joinPath (includeTemplate "env/xdg" "config") "gmailctl" | quote)))
+        (dict "name" "gmcap" "command" (print "%s --config " (joinPath (includeTemplate "env/xdg" "config") "gmailctl" | quote) " apply"))
+        (dict "name" "gmcdf" "command" (print "%s --config " (joinPath (includeTemplate "env/xdg" "config") "gmailctl" | quote) " diff"))
+        (dict "name" "gmce" "command" (print "%s --config " (joinPath (includeTemplate "env/xdg" "config") "gmailctl" | quote) " edit") "env" (dict "EDITOR" "code -w"))
+        (dict "name" "gmcdl" "command" (print "%s --config " (joinPath (includeTemplate "env/xdg" "config") "gmailctl" | quote) " download"))
+      )
+    )
 }}
 
 {{- $aliases_list | toJson -}}
