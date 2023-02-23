@@ -40,7 +40,7 @@
             name = "profile global";
             paths = with pkgs; [
               bat
-              bitwarden-cli
+              #bitwarden-cli not work
               chezmoi
               curl # maybe need to repair [man bin dev devdoc]
               du-dust
