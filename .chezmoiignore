@@ -25,6 +25,6 @@ fenv-excludes
 .local/state/vim/
 {{- end }}
 
-{{- if not .use_win32yank }}
+{{- if not .vim.use_win32yank }}
 .vim/plugin/winclip.vim
 {{- end }}

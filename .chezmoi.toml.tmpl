@@ -22,19 +22,24 @@
   }}
 {{- end }}
 
-{{- $main_editor_prompt := "What is your main editor? (default is vi)" }}
-{{- $main_editor := (promptString $main_editor_prompt | default "vi" | replace "vscode" "code") }}
+{{- $main_editor := index . "main_editor" }}
+{{- if not (empty $main_editor) }}
+{{-   if empty (lookPath $main_editor) }}
+{{-     $main_editor = "" }}
+{{-   end }}
+{{- end }}
+{{- if empty $main_editor }}
+{{-   $main_editor_prompt := "What is your main editor? (default is vi)" }}
+{{-   $main_editor = (promptString $main_editor_prompt | default "vi" | replace "vscode" "code") }}
+{{- end }}
 
-{{- $use_vim_default := not (empty (lookPath "vim")) }}
-{{- $use_vim_prompt := printf "Will you use vim? (default value is %v)\n[(y)es/(n)o]" $use_vim_default }}
-{{- $use_vim_input := promptString $use_vim_prompt }}
-{{- $use_vim := (
-  $use_vim_input | regexMatch "^(?:y|yes)$"
-    | or ($use_vim_default
-      | and (not ($use_vim_input | regexMatch "^(?:n|no)$"))
-    )
-  )
-}}
+{{- $exists_vim := not (empty (lookPath "vim")) }}
+{{- $use_vim_previous := index . "use_vim" }}
+{{- $use_vim := $use_vim_previous }}
+{{- if ne $exists_vim $use_vim_previous }}
+{{-   $use_vim_default := $use_vim_previous }}
+{{-   $use_vim = promptBool . "use_vim" "Will you use vim?" $exists_vim }}
+{{- end }}
 
 {{- $default_diff := (
     $use_vim | ternary "vimdiff" ($main_editor | eq "code" | ternary "code-diff" "")
@@ -46,11 +51,15 @@
   )
 }}
 
+{{- if $use_vim }}
+[edit]
+hardlink = false
+{{- end }}
+
 [data]
   shell_list = {{ $shell_list | uniq | join ", " | printf "[%s]" }}
   main_editor = "{{ $main_editor }}"
   use_vim = {{ $use_vim }}
-  use_win32yank = {{ not (empty (lookPath "win32yank.exe")) }}
   is_win_bash = {{ .chezmoi.os | eq "windows" | and ($shell_list | has "bash") }}
 
 {{- $git_editor := $main_editor | replace "code" "code --reuse-window --wait" }}
@@ -91,11 +100,49 @@ histignore = [
   {{- end -}}"
 {{- end }}
 
+{{- $prev_vim := index . "vim" | default (dict) }}
+
 [data.vim]
-  chezmoi_plugin_path = ""
-  dein_token = "{{- if $bw_logged_in -}}
-  {{- (bitwardenFields "item" "GitHub").dein_vim_token.value -}}
-  {{- end -}}"
+use_win32yank = {{ not (empty (lookPath "win32yank.exe")) }}
+dein_token = '{{- if $bw_available -}}
+{{-   (bitwardenFields "item" "GitHub").dein_vim_token.value -}}
+{{- end -}}'
+chezmoi_plugin_path = '{{ index $prev_vim "chezmoi_plugin_path" }}'
+
+[data.vim.chezmoi_plugin_options]
+{{- with index $prev_vim "chezmoi_plugin_options" }}
+{{-   range $key,$value := . }}
+{{ $key }} = {{ if $value | kindIs "string"}}'{{ $value }}'{{ else }}{{ $value }}{{ end }}
+{{-   end }}
+{{- else }}
+#source_path = ''
+{{- end }}
+
+{{- $placeholder_default_exclude := printf "#%s\n" "default_exclude = []" }}
+{{- $placeholder_additional_lines := list
+    "[[data.vim.plugins.additional]]"
+    "repo = \"owner/repo\""
+}}
+{{- $placeholder_additional := printf "#%s\n" ($placeholder_additional_lines | join "\n#") }}
+
+[data.vim.plugins]
+{{- with index $prev_vim "plugins" | default (dict) }}
+{{-   with index . "default_exclude" }}
+default_exclude = {{ toToml . }}
+{{-   else }}
+{{  $placeholder_default_exclude }}
+{{-   end }}
+{{-   with index . "additional" }}
+{{      regexReplaceAllLiteral "(?m)^\\[{2}" (dict "additional" . | toToml) "[[data.vim.plugins." }}
+{{-   else }}
+{{- $placeholder_additional }}
+{{-   end }}
+{{- else }}
+{{  $placeholder_default_exclude }}
+{{  $placeholder_additional }}
+{{- end }}
+
+{{- "" -}}
 
 [data.bw]
 email = '{{ $bw_email }}'
