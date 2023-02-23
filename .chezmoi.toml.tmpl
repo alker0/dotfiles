@@ -69,6 +69,10 @@
 {{-   end }}
 {{- end }}
 
+{{- $bw_email_default := "xxx@example.com" }}
+{{- $bw_email_prompt := printf "Your email for bitwarden? (default is %s)" $bw_email_default }}
+{{- $bw_email := (promptString $bw_email_prompt | default $bw_email_default) }}
+
 [data.bash]
 histignore = [
   'xl',
@@ -94,4 +98,4 @@ histignore = [
   {{- end -}}"
 
 [data.bw]
-email = 'xxx@example.com'
+email = '{{ $bw_email }}'
