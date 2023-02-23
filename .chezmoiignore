@@ -1,4 +1,5 @@
 README.md
+tmp/
 
 {{- if not (.shell_list | has "bash") }}
 .bash_*
