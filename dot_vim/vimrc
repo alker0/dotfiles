@@ -36,7 +36,6 @@ if 1
 
   let g:vim_config_dir = expand('~/.vim')
 
-
   if !has('unix')
     let g:local_data_dir = substitute(g:local_data_dir, '\\', '/', 'g')
     let g:local_config_dir = substitute(g:local_config_dir, '\\', '/', 'g')

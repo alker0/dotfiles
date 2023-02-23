@@ -25,8 +25,7 @@ function s:create_sticky_buf(bufname) abort
       return 0
     endfor
   endif
-  augroup git_commit_close
-  augroup END
+
   execute 'tabnew ' . l:bufname_upper
   setlocal buftype=nofile
   setlocal bufhidden=wipe
