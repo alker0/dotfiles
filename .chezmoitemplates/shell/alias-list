@@ -106,7 +106,7 @@
     (dict "depends" "bw"
       "check_on_run" true
       "aliases" (list
-        (dict "name" "bwli" "command" (print "%s login --raw --method 1 " ($data.bw.email | quote)))
+        (dict "name" "bwli" "command" (print "%s login --raw --method 0 " ($data.bw.email | quote)))
         (dict "name" "bwlo" "command" "%s logout")
       )
     )
