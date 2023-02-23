@@ -1,6 +1,9 @@
 [[plugins]]
-repo = 'cespare/vim-toml'
-on_ft = 'toml'
+repo = 'acarapetis/vim-sh-heredoc-highlighting'
+on_ft = ['sh', 'bash', 'posix']
 [[plugins]]
-repo = 'LnL7/vim-nix'
-on_path = '\.nix$'
+repo = 'dense-analysis/ale'
+if = false
+on_ft = ['sh', 'bash', 'posix', 'markdown', 'vim']
+hook_post_source = 'ALEEnable'
+# autocmd VimEnter * call dein#call_hook('post_source')
