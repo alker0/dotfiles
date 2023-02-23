@@ -52,6 +52,7 @@
       )
     )
     (dict "depends" "chezmoi"
+      "check_on_run" true
       "aliases" (list
         (dict "name" "cm" "command" "%s")
         (dict "name" "cmad" "command" "%s add")
@@ -71,6 +72,7 @@
       )
     )
     (dict "depends" "yarn"
+      "check_on_run" true
       "aliases" (list
         (dict "name" "yr" "command" "%s")
         (dict "name" "yrad" "command" "%s add")
@@ -102,6 +104,7 @@
       )
     )
     (dict "depends" "bw"
+      "check_on_run" true
       "aliases" (list
         (dict "name" "bwli" "command" (print "%s login --raw --method 1 " ($data.bw.email | quote)))
         (dict "name" "bwlo" "command" "%s logout")

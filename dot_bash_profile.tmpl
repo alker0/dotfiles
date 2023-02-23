@@ -25,6 +25,8 @@ fi
 {{- else -}}
 {{- end -}}
 
+{{- if .use_brew }}
+
 if [ -z "$(command -v brew)" ]; then
   eval "$(
     linuxbrew_path=/home/linuxbrew/.linuxbrew/bin/brew
@@ -34,6 +36,8 @@ if [ -z "$(command -v brew)" ]; then
   )"
 fi
 
+{{- end }}
+
 bash_profile_load_with_filecheck() {
   if [ -f "$1" ]; then
     . "$1"
@@ -41,6 +45,8 @@ bash_profile_load_with_filecheck() {
 }
 
 bash_profile_load_with_filecheck "$HOME/.nix-profile/etc/profile.d/nix.sh"
+
+{{- if .use_java }}
 
 read_link_posix() {
   (
@@ -101,6 +107,8 @@ if [ -n "$(command -v java)" ] && [ -z "${JAVA_HOME%%${WSLENV:+/mnt/[a-z]/*}}" ]
   fi
 fi
 
+{{-   if .use_flutter }}
+
 for sdk_tools_path in 'cmdline-tools/latest/bin/sdkmanager' 'platform-tools/adb'; do
   if [ -x "$ANDROID_SDK_ROOT/$sdk_tools_path" ]; then
     export PATH="$ANDROID_SDK_ROOT/${sdk_tools_path%/*}:$PATH"
@@ -115,6 +123,9 @@ if [ -n "$(command -v flutter)" ]; then
     fi
   fi
 fi
+
+{{-   end }}
+{{- end }}
 
 if [ -n "$(command -v go)" ]; then
   export PATH="${GOPATH:-$HOME/go}/bin:$PATH"

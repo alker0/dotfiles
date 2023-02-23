@@ -30,7 +30,6 @@ fi
 
 if [ -n "$(command -v gpg)" ]; then
   export GPG_TTY="$(tty)"
-  alias gpg="LANG=en_US.utf8 gpg"
 fi
 
 if [ -n "$(command -v fnm)" ]; then
@@ -119,14 +118,15 @@ if [ -n "$(command -v gh)" ]; then
   eval "$(gh completion -s bash)"
 fi
 
-eval "$(
-  completions_dir="$HOME/.nix-profile/share/bash-completion/completions"
+eval "$(#
+  nix_state_dir="${XDG_STATE_HOME:-$HOME/.local/state}/nix"
+  completions_dir="$nix_state_dir/profile/share/bash-completion/completions"
   if [ -d "$completions_dir" ]; then
     find $completions_dir -maxdepth 1 ! -type d ! -name 'chezmoi*' ! -name 'gh*' -exec cat {} +
   fi
 )"
 
-eval "$(
+eval "$(#
   tmp_dir="${TEMPDIR:-/tmp}"
   [ -d "$tmp_dir" ] || exit
   dummy_dir="$tmp_dir/bash_alias_completion"

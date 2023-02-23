@@ -51,6 +51,27 @@
   )
 }}
 
+{{- $exists_java := not (empty (lookPath "java")) }}
+{{- $use_java_previous := index . "use_java" }}
+{{- $use_java := $use_java_previous }}
+{{- if ne $exists_java $use_java_previous }}
+{{-   $use_java_default := $use_java_previous }}
+{{-   $use_java = promptBool . "use_java" "Will you use java?" $exists_java }}
+{{- end }}
+
+{{- $use_flutter := $use_java }}
+{{- if $use_java }}
+{{-   $exists_flutter := not (empty (lookPath "java")) }}
+{{-   $use_flutter_previous := index . "use_java" }}
+{{-   $use_flutter := $use_java_previous }}
+{{-   if ne $exists_flutter $use_java_previous }}
+{{-     $use_flutter_default := $use_java_previous }}
+{{-     $use_flutter = promptBool . "use_java" "Will you use java?" $exists_java }}
+{{-   end }}
+{{- end }}
+
+{{- "" -}}
+
 {{- if $use_vim }}
 [edit]
 hardlink = false
@@ -60,6 +81,10 @@ hardlink = false
   shell_list = {{ $shell_list | uniq | join ", " | printf "[%s]" }}
   main_editor = "{{ $main_editor }}"
   use_vim = {{ $use_vim }}
+  use_java = {{ $use_java }}
+  use_flutter = {{ $use_flutter }}
+  use_brew = false
+  use_gh = true
   is_win_bash = {{ .chezmoi.os | eq "windows" | and ($shell_list | has "bash") }}
 
 {{- $git_editor := $main_editor | replace "code" "code --reuse-window --wait" }}
