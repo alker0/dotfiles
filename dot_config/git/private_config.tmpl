@@ -90,7 +90,7 @@
   smg = !sh -c 'git --git-dir=.git/module/$0 \"$@\"'
   smrc = submodule-recovery
   smro = submodule-readonly
-  sma1gh = !sh -c 'git submodule add --depth=1 \"$@\" -- \"https://github.com/${0}\"'
+  sma1gh = !sh -c 'git submodule add --depth=1 \"$@\" -- \"https://github.com/${0}.git\"'
   smu1tn = submodule update --init --filter=tree:0
   smspi = submodule --quiet foreach 'git sparse-checkout set --no-cone --sparse-index "/"'
   smspe = submodule-sparse-edit
