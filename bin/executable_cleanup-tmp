@@ -2,25 +2,29 @@
 
 'ls' -A1 /tmp | 'grep' -E "^($(printf '|%s' $(cat <<'EOF'
 bash_alias_completion
-chezmoi-edit-*
+bw-git
+chezmoi-edit-\S*
 chrootenv
 core-js-banners
-dart-code-startup-log-.*
-flutter_tools\..*
-hsperfdata_*
-kotlin-.*
+dart-code-startup-log-\S*
+env-vars
+flutter_tools\.\S*
+gmailctl-\w*\.jsonnet
+hsperfdata_\S*
+kotlin-\S*
 native-platform
-nix-.*
-npm-.*
+nix-\S*
+npm-\S*
+nvim.\w*
 phantomjs
-pip-uninstall-*
-pyright-.*
+pip-uninstall-\S*
+pyright-\S*
 python-languageserver
-tmp.*.pem
-v8-compile-cache-.*
-vim-.*
-xfs-.*
-yarn--.*
+tmp\S*\.pem
+v8-compile-cache-\S*
+vim-\S*
+xfs-\S*
+yarn--\S*
 EOF
 )
 ))$" | xargs sh -c "$(cat <<'EOF'
@@ -30,16 +34,15 @@ fi
 EOF
 )" _
 
-
 'ls' -A1 /tmp | 'grep' -vE "^($(printf '|%s' $(cat <<'EOF'
 \.X11-unix
-remote-wsl-.*
-graveyard-.*
+remote-wsl-\S*
+graveyard-\S*
 fnm_multishells
-vscode-.*
+vscode-\S*
 EOF
 )
-))$" | xargs -L10 --open-tty sh -c "$(cat <<'EOF'
+))$" | xargs -L10 --open-tty sh -c "$(cat <<'SHELL'
 if [ "$#" -eq 0 ]; then
   return
 fi
@@ -48,8 +51,12 @@ echo "Remove these in /tmp [fF(orce)/yY(es)/nN(o)/qQ(uit)]? $(printf '\n%s' "$@"
 read -r REPLY
 case "$REPLY" in
   ''|[fF]|[fF]orce)
-    find "/tmp/$@" -maxdepth 0 \(-user "$UID" -o -perm -002 $(printf ' -o -group %s' $(id --groups)) \) \
-      -exec rm -rf {}+
+    USER_ID="$(id "$USER" | sed -e 's/^[^=]*=\([0-9]\+\).*/\1/')"
+    arg_files () {
+      printf ' /tmp/%s' "$@" | sed -e 's% \([^/]\)%\\ \1%g'
+    }
+    find $(arg_files "$@") -maxdepth 0 \( -user "$USER_ID" -o -perm -002 $(printf ' -o -group %s' $(id --groups)) \) \
+      -exec rm -rf {} +
     for i in $(seq $#); do
       target="$1"
       # if [ -e "$target" ] && [ "_$(stat -c '%u' "$target")" = "_0"  ]; then
@@ -58,8 +65,8 @@ case "$REPLY" in
       fi
       shift
     done
-    find "/tmp/" -mindepth 1 -maxdepth 1 \( -user 0 -o \( -group 0 -perm -020 \) \) \
-      -exec sudo rm -ir {}+
+    find find $(arg_files "$@") -mindepth 1 -maxdepth 1 \( -user 0 -o \( -group 0 -perm -020 \) \) \
+      -exec sudo rm -ir {} +
     ;;
   ''|[yY]|[yY]es)
     rm -rf $(printf ' /tmp/%s' "$@")
@@ -71,24 +78,24 @@ case "$REPLY" in
     exit 255
     ;;
 esac
-EOF
+SHELL
 )" _
 
 for tmp_name in ipc- git- typescript- distro-env ; do
-  'ls' -A1t /tmp | 'grep' -E "^vscode-${tmp_name}" | tail -n +2 | xargs --open-tty sh -c "$(cat <<'EOF'
+  'ls' -A1t /tmp | 'grep' -E "^vscode-${tmp_name}" | tail -n +2 | xargs --open-tty sh -c "$(cat <<'SHELL'
 if [ "$#" -ne 0 ]; then
   rm -r $(printf ' /tmp/%s' "$@")
 fi
-EOF
+SHELL
   )" _
 done
 
 if [ -d /tmp/fnm_multishells ]; then
-  'ls' -A1t /tmp/fnm_multishells/ | tail -n +2 | xargs sh -c "$(cat <<'EOF'
+  'ls' -A1t /tmp/fnm_multishells/ | tail -n +2 | xargs sh -c "$(cat <<'SHELL'
 if [ "$#" -ne 0 ]; then
   rm -r $(printf ' /tmp/fnm_multishells/%s' "$@")
 fi
-EOF
+SHELL
   )" _
 fi
 

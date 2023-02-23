@@ -4,7 +4,7 @@ set -e
 
 export target_names="$(printf '%s\n' "${@:-'.*'}")"
 
-git submodule --quiet --recursive foreach '{
+git submodule --quiet foreach --recursive '{
   set -e
 
   if echo "$target_names" | grep -qE "^$name$"; then
