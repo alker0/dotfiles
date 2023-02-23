@@ -1,25 +1,29 @@
 {{- $is_alpine := (index .chezmoi "osRelease" | default (dict "id" "")).id | eq "alpine" }}
 
-{{- $shell_list := list }}
-{{- $valid_shell_list := list "bash" "zsh" "dash" "ash" "ksh" "csh" "tcsh" "fish" "elvish" }}
-{{- $default_shell_text := "" }}
-{{- $printf_format := "%s%s" }}
-{{- range $valid_shell := $valid_shell_list }}
-{{-   if lookPath $valid_shell }}
-{{-     $default_shell_text = printf $printf_format $default_shell_text $valid_shell }}
-{{-     $printf_format = "%s:%s" }}
+{{- $shell_list := index . "shell_list" }}
+{{- if not $shell_list }}
+{{-   $shell_list = list }}
+{{-   $valid_shell_list := list "bash" "zsh" "dash" "ash" "ksh" "csh" "tcsh" "fish" "elvish" }}
+{{-   $default_shell_text := "" }}
+{{-   $printf_format := "%s%s" }}
+{{-   range $valid_shell := $valid_shell_list }}
+{{-     if lookPath $valid_shell }}
+{{-       $default_shell_text = printf $printf_format $default_shell_text $valid_shell }}
+{{-       $printf_format = "%s:%s" }}
+{{-     end }}
 {{-   end }}
-{{- end}}
-{{- $shell_list_prompt := printf "A list of all shell you will use (e.g. 'bash:zsh', default: %s)" $default_shell_text }}
-{{- range $shell_list_elm := (regexSplit
-    "\\s*:\\s*"
-    (promptString $shell_list_prompt | default $default_shell_text)
-    -1)
+{{-   $shell_list_prompt := printf "A list of all shell you will use (e.g. 'bash:zsh', default: %s)" $default_shell_text }}
+{{-   range $shell_list_elm := (regexSplit
+        "\\s*:\\s*"
+        (promptString $shell_list_prompt | default $default_shell_text)
+        -1
+      )
 }}
-  {{- $shell_list = $valid_shell_list
-    | has $shell_list_elm
-    | ternary (append $shell_list (quote $shell_list_elm)) $shell_list
-  }}
+{{-     $shell_list = $valid_shell_list
+          | has $shell_list_elm
+          | ternary (append $shell_list (quote $shell_list_elm)) $shell_list
+}}
+{{-   end }}
 {{- end }}
 
 {{- $main_editor := index . "main_editor" }}
@@ -72,40 +76,62 @@
 
 {{- "" -}}
 
+#[warnings]
+#  configFileTemplateHasChanged = false
+
 {{- if $use_vim }}
 [edit]
 hardlink = false
 {{- end }}
 
 [data]
-  shell_list = {{ $shell_list | uniq | join ", " | printf "[%s]" }}
-  main_editor = "{{ $main_editor }}"
-  use_vim = {{ $use_vim }}
-  use_java = {{ $use_java }}
-  use_flutter = {{ $use_flutter }}
-  use_brew = false
-  use_gh = true
-  is_win_bash = {{ .chezmoi.os | eq "windows" | and ($shell_list | has "bash") }}
+shell_list = {{ $shell_list | toToml }}
+main_editor = '{{ $main_editor }}'
+use_vim = {{ $use_vim }}
+use_java = {{ $use_java }}
+use_flutter = {{ $use_flutter }}
+use_brew = false
+use_gh = true
+is_win_bash = {{ .chezmoi.os | eq "windows" | and ($shell_list | has "bash") }}
 
 {{- $git_editor := $main_editor | replace "code" "code --reuse-window --wait" }}
 {{- $git_email_default := "xxx@example.com" }}
 {{- $git_email_prompt := printf "Your email for git? (default is %s)" $git_email_default }}
-{{- $git_email := (promptString $git_email_prompt | default $git_email_default) }}
+{{- $git_email := (promptStringOnce . "git.email" $git_email_prompt $git_email_default | default $git_email_default) }}
 {{- $git_name_default := "alker0" }}
 {{- $git_name_prompt := printf "Your name for git? (default is %s)" $git_name_default }}
-{{- $git_name := (promptString $git_name_prompt | default $git_name_default) }}
+{{- $git_name := (promptStringOnce . "git.name" $git_name_prompt $git_name_default | default $git_name_default) }}
 {{- $default_use_gpg := not (empty (lookPath "gpg")) }}
 
-{{- $bw_logged_in := not (empty (env "BW_SESSION")) }}
-{{- if not $bw_logged_in }}
-{{-   if lookPath "bw" }}
-{{-     $bw_logged_in = not (output "bw" "status" | contains "\"unauthenticated\"") }}
+{{- $bw_available := false }}
+{{- $bw_status := "" }}
+{{- $bw_reason := "unknown" }}
+{{- $exists_bw := not (empty (lookPath "bw")) }}
+{{- if $exists_bw }}
+{{-   $bw_status_object := output "bw" "status" | fromJson }}
+{{-   $bw_status = index $bw_status_object "status" }}
+{{-   if eq $bw_status "locked" }}
+{{-     if stdinIsATTY }}
+{{-       $bw_available = true }}
+{{-     else }}
+{{-       $bw_reason = "locked and not tty" }}
+{{-     end }}
+{{-   else if eq $bw_status "unlocked" }}
+{{-     $bw_available = true }}
+{{-   else }}
+{{-     $bw_reason = $bw_status }}
+{{-   end }}
+{{- end }}
+{{- if not $bw_available }}
+{{-   writeToStdout (printf "Bitwarden is not available for %s\n" $bw_reason) }}
+{{-   if not (promptBool "Continue ?" false) }}
+{{-     exit 1 }}
 {{-   end }}
 {{- end }}
 
 {{- $bw_email_default := "xxx@example.com" }}
 {{- $bw_email_prompt := printf "Your email for bitwarden? (default is %s)" $bw_email_default }}
-{{- $bw_email := (promptString $bw_email_prompt | default $bw_email_default) }}
+{{- $bw_email := (promptStringOnce . "bw.email" $bw_email_prompt | default $bw_email_default) }}
 
 [data.bash]
 histignore = [
@@ -113,16 +139,16 @@ histignore = [
 ]
 
 [data.git]
-  editor = "{{ $git_editor }}"
-  email = "{{ $git_email }}"
-  name = "{{ $git_name }}"
-  default_diff = "{{ $default_diff }}"
-  default_merge = "{{ $default_merge }}"
-  gpg_sign = {{ $default_use_gpg }}
+editor = '{{ $git_editor }}'
+email = '{{ $git_email }}'
+name = '{{ $git_name }}'
+default_diff = '{{ $default_diff }}'
+default_merge = '{{ $default_merge }}'
+gpg_sign = {{ $default_use_gpg }}
 {{- if $default_use_gpg }}
-  signingkey = "{{- if $bw_logged_in -}}
-  {{- (bitwardenFields "item" "GitHub").default_signing_key_id.value -}}
-  {{- end -}}"
+signingkey = '{{- if $bw_available -}}
+{{-     (bitwardenFields "item" "GitHub").default_signing_key_id.value -}}
+{{-   end -}}'
 {{- end }}
 
 {{- $prev_vim := index . "vim" | default (dict) }}
